@@ -120,7 +120,7 @@ export const elementToFigma = (
                 // TODO: backround size, position
                 scaleMode:
                     computedStyle.backgroundSize === 'contain' ? 'FIT' : 'FILL',
-                imageHash: null,
+                imageHash: '',
             } as ImagePaint);
         }
     }
@@ -147,7 +147,7 @@ export const elementToFigma = (
                 // TODO: object fit, position
                 scaleMode:
                     computedStyle.objectFit === 'contain' ? 'FIT' : 'FILL',
-                imageHash: null,
+                imageHash: '',
             } as ImagePaint);
         }
     }
@@ -163,7 +163,7 @@ export const elementToFigma = (
                     // TODO: object fit, position
                     scaleMode:
                         computedStyle.objectFit === 'contain' ? 'FIT' : 'FILL',
-                    imageHash: null,
+                    imageHash: '',
                 } as ImagePaint);
             }
         }
@@ -177,7 +177,7 @@ export const elementToFigma = (
                 // TODO: object fit, position
                 scaleMode:
                     computedStyle.objectFit === 'contain' ? 'FIT' : 'FILL',
-                imageHash: null,
+                imageHash: '',
             } as ImagePaint);
         }
     }
