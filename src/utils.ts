@@ -213,7 +213,7 @@ export const parseBoxShadowValues = (str: string): ParsedBoxShadow[] => {
 };
 
 
-export function getImageFills(layer: RectangleNode | TextNode) {
+export function getImageFills(layer: RectangleNode | TextNode | FrameNode) {
     const images =
         Array.isArray(layer.fills) &&
         layer.fills.filter((item) => item.type === 'IMAGE');

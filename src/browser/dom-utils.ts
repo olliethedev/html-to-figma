@@ -357,6 +357,7 @@ export async function processImages(layer: LayerNode) {
         : Promise.resolve([]);
 }
 
+
 export const getShadowEls = (el: Element): Element[] =>
     Array.from(
         el.shadowRoot?.querySelectorAll('*') || ([] as Element[])

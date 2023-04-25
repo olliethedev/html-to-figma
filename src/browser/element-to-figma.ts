@@ -5,6 +5,7 @@ import {
     prepareUrl,
     isElemType,
     ElemTypes,
+    processImages,
 } from './dom-utils';
 import { getRgb, parseUnits, parseBoxShadowValues, getOpacity } from '../utils';
 import { MetaLayerNode, SvgNode, WithMeta } from '../types';
@@ -13,10 +14,10 @@ import { textToFigma } from './text-to-figma';
 import { getBorder, getBorderPin } from './border';
 import { addConstraintToLayer } from './add-constraints';
 
-export const elementToFigma = (
+export const elementToFigma = async (
     el: Element,
     pseudo?: string
-): MetaLayerNode | undefined => {
+): Promise<MetaLayerNode | undefined> => {
     if (el.nodeType === Node.TEXT_NODE) {
         return textToFigma(el);
     }
@@ -182,6 +183,9 @@ export const elementToFigma = (
         }
     }
 
+
+    await processImages(rectNode as any);
+
     if (computedStyle.boxShadow && computedStyle.boxShadow !== 'none') {
         const parsed = parseBoxShadowValues(computedStyle.boxShadow);
         const hasShadowSpread =
@@ -237,7 +241,7 @@ export const elementToFigma = (
     const result = rectNode;
 
     if (!pseudo && getComputedStyle(el, 'before').content !== 'none') {
-        result.before = elementToFigma(el, 'before') as WithMeta<FrameNode>;
+        result.before = await elementToFigma(el, 'before') as WithMeta<FrameNode>;
 
         if (result.before) {
             addConstraintToLayer(result.before, el as HTMLElement, 'before');
@@ -246,7 +250,7 @@ export const elementToFigma = (
     }
 
     if (!pseudo && getComputedStyle(el, 'after').content !== 'none') {
-        result.after = elementToFigma(el, 'after') as WithMeta<FrameNode>;
+        result.after = await elementToFigma(el, 'after') as WithMeta<FrameNode>;
         if (result.after) {
             addConstraintToLayer(result.after, el as HTMLElement, 'after');
             result.after.name = '::after';

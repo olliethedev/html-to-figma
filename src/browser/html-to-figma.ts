@@ -22,7 +22,7 @@ const removeMeta = (layerWithMeta: WithMeta<LayerNode>): LayerNode | undefined =
     return { type, ...rest } as PlainLayerNode;
 }
 
-const mapDOM = (root: Element): LayerNode => {
+const mapDOM = async (root: Element): Promise<LayerNode> => {
     const elems: WithMeta<LayerNode>[] = [];
     const walk = context.document.createTreeWalker(
         root,
@@ -36,7 +36,7 @@ const mapDOM = (root: Element): LayerNode => {
     
     do {
         if (!n.parentElement) continue;
-        const figmaEl = elementToFigma(n as Element);
+        const figmaEl = await elementToFigma(n as Element);
 
         if (figmaEl) {
             addConstraintToLayer(figmaEl, n as HTMLElement);
@@ -98,7 +98,7 @@ const mapDOM = (root: Element): LayerNode => {
     return layersWithoutMeta;
 }
 
-export function htmlToFigma(
+export async function htmlToFigma(
     selector: HTMLElement | string = 'body',
 ) {
 
@@ -137,7 +137,7 @@ export function htmlToFigma(
     //     },
     //     [] as Element[]
     // );
-    const data = mapDOM(el);
+    const data = await mapDOM(el);
 
     return data ? data : [];
 }

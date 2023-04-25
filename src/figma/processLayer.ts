@@ -57,17 +57,20 @@ export const processLayer = async (
         throw Error(`${layer.type} not implemented`);
     }
 
+    if (layer.type === 'RECTANGLE' || layer.type === 'FRAME') {
+        if (getImageFills(layer as RectangleNode)) {
+            console.warn('processImages');
+            await processImages(layer as RectangleNode);
+        }
+    }
+
     if (SIMPLE_TYPES.includes(layer.type as string)) {
         parentFrame.appendChild(processDefaultElement(layer, node));
     }
     // @ts-expect-error
     layer.ref = node;
 
-    if (layer.type === 'RECTANGLE') {
-        if (getImageFills(layer as RectangleNode)) {
-            await processImages(layer as RectangleNode);
-        }
-    }
+    
 
     if (layer.type === 'TEXT') {
         const text = node as TextNode;
