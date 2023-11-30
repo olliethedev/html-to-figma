@@ -324,7 +324,8 @@ export async function processImages(layer: LayerNode) {
 
                           // Proxy returned content through Builder so we can access cross origin for
                           // pulling in photos, etc
-                          const res = await fetch(`https://builder.io/api/v1/proxy-api?url=${encodeURIComponent(url)}`);
+                          //corsproxy will only work with images not svgs
+                          const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
 
                           const contentType = res.headers.get('content-type');
                           if (
