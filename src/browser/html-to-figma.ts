@@ -112,6 +112,8 @@ export async function htmlToFigma(
         throw Error(`Element not found`);
     }
 
+    console.log('Full element tree:', el.innerHTML);
+
     // Process SVG <use> elements
     for (const use of Array.from(
         el.querySelectorAll('use')

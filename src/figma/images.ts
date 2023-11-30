@@ -2,7 +2,6 @@ import { getImageFills } from "../utils";
 
 export async function processImages(layer: RectangleNode | TextNode) {
     const images = getImageFills(layer);
-    console.warn(images);
     return (
         images &&
         Promise.all(

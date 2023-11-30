@@ -274,6 +274,7 @@ function convertDataURIToBinary(dataURI: string) {
 }
 
 const convertToSvg = (value: string, layer: LayerNode) => {
+    console.log('convertToSvg', value);
     const layerSvg = layer as SvgNode;
     layerSvg.type = 'SVG';
     layerSvg.svg = value;
@@ -323,7 +324,7 @@ export async function processImages(layer: LayerNode) {
 
                           // Proxy returned content through Builder so we can access cross origin for
                           // pulling in photos, etc
-                          const res = await fetch(url);
+                          const res = await fetch(`https://builder.io/api/v1/proxy-api?url=${encodeURIComponent(url)}`);
 
                           const contentType = res.headers.get('content-type');
                           if (
@@ -392,7 +393,7 @@ export const getElemType = (el: Element): ElemTypes | undefined => {
         return ElemTypes.Picture;
     }
     // @ts-expect-error
-    if (el instanceof context.window.HTMLImageElement) {
+    if (el instanceof context.window.HTMLImageElement || el.tagName === 'IMG') {
         return ElemTypes.Image;
     }
     // @ts-expect-error

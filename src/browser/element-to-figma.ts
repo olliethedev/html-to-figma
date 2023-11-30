@@ -18,6 +18,7 @@ export const elementToFigma = async (
     el: Element,
     pseudo?: string
 ): Promise<MetaLayerNode | undefined> => {
+    console.log('elementToFigma', el, pseudo);
     if (el.nodeType === Node.TEXT_NODE) {
         return textToFigma(el);
     }
@@ -56,6 +57,7 @@ export const elementToFigma = async (
             height: Math.round(rect.height),
         } as WithMeta<SvgNode>;
     }
+
 
     const rect = getBoundingClientRect(el, pseudo);
 
@@ -152,6 +154,7 @@ export const elementToFigma = async (
             } as ImagePaint);
         }
     }
+
     if (isElemType(el, ElemTypes.Picture)) {
         const firstSource = el.querySelector('source');
         if (firstSource) {
@@ -206,6 +209,7 @@ export const elementToFigma = async (
                 x: shadow.offsetX,
                 y: shadow.offsetY,
             },
+            //@ts-expect-error 
         })) as ShadowEffect[];
     }
 
