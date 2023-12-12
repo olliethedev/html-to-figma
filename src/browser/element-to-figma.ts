@@ -142,8 +142,8 @@ export const elementToFigma = async (
                     }
                 }).filter(Boolean) as ColorStop[],
                 gradientTransform: [
-                    [Math.cos(gradient.angle), Math.sin(gradient.angle), gradient.transform.x],
-                    [-Math.sin(gradient.angle), Math.cos(gradient.angle), gradient.transform.y]
+                    [1, 0, gradient.transform.x],
+                    [0, 1, gradient.transform.y]
                 ]
             });
         }

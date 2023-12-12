@@ -101,35 +101,43 @@ document.addEventListener('DOMContentLoaded', function () {
             margin: 10px;
             background: radial-gradient(circle at right, #ff0000, #00ff00, #0000ff);
           }
+          .radial5 {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            background: radial-gradient(circle at left, #ff0000, #00ff00, #0000ff);
+          }
     </style>
             </head>
             <body id="container" class="bg-gray-100 p-10">
             <div class="flex">
                 <div>
-                Gradient direction to top
-                <div class="gradient-up"></div>
-                <div class="bg-gradient-to-t from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
-                Gradient direction to bottom
-                <div class="gradient-down"></div>
-                <div class="bg-gradient-to-b from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
-                Gradient direction to left
-                <div class="gradient-left"></div>
-                <div class="bg-gradient-to-l from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
-                Gradient direction to right
-                <div class="gradient-right"></div>
-                <div class="bg-gradient-to-r from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
+                    <h2 class="text-2xl font-bold">Linear</h2>
+                    Gradient direction to top
+                    <div class="gradient-up"></div>
+                    <div class="bg-gradient-to-t from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
+                    Gradient direction to bottom
+                    <div class="gradient-down"></div>
+                    <div class="bg-gradient-to-b from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
+                    Gradient direction to left
+                    <div class="gradient-left"></div>
+                    <div class="bg-gradient-to-l from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
+                    Gradient direction to right
+                    <div class="gradient-right"></div>
+                    <div class="bg-gradient-to-r from-red-500 via-green-500 to-blue-500 w-48 h-48 my-4"></div>
                 </div>
                 <div>
-                <div>
-                <h2>Radial Gradients</h2>
-                Radial Gradient 1
-                <div class="gradient radial1"></div>
-                Radial Gradient 2
-                <div class="gradient radial2"></div>
-                Radial Gradient 3
-                <div class="gradient radial3"></div>
-                Radial Gradient 4
-                <div class="gradient radial4"></div>
+                    <h2 class="text-2xl font-bold">Radial</h2>
+                    Radial Gradient 1
+                    <div class="gradient radial1"></div>
+                    Radial Gradient 2
+                    <div class="gradient radial2"></div>
+                    Radial Gradient 3
+                    <div class="gradient radial3"></div>
+                    Radial Gradient 4
+                    <div class="gradient radial4"></div>
+                    Radial Gradient 5
+                    <div class="gradient radial5"></div>
                 </div>
             </div>
             </body>

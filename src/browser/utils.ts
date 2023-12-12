@@ -32,7 +32,6 @@ export const replaceSvgFill = (svg: string, fillColor: string) => {
 
 
 export function parseGradient(cssGradient: string) {
-    
     const linearMatch = cssGradient.match(/linear-gradient\((.+)\)/);
     const radialMatch = cssGradient.match(/radial-gradient\((.+)\)/);
 
@@ -40,10 +39,9 @@ export function parseGradient(cssGradient: string) {
         return null;
     }
 
-    console.warn({ cssGradient });
-
     const isLinear = Boolean(linearMatch);
     let parts: string[] = [];
+    
     if (isLinear && linearMatch) {
         parts = splitGradientParts(linearMatch[1]);
     } else if (!isLinear && radialMatch) {
@@ -53,6 +51,8 @@ export function parseGradient(cssGradient: string) {
     // Check if gradient has direction, if not add default direction to the beginning of the parts array
     if (isLinear && !parts[0].includes('to')) {
         parts.unshift('to bottom');
+    } else if (!isLinear && !parts[0].includes('circle')) {
+        parts.unshift('circle at center');
     }
     let angle = 0;
     let transform = { x: 0, y: 0 }
@@ -61,6 +61,18 @@ export function parseGradient(cssGradient: string) {
         if (isLinear) {
             angle = getAngleFromDirection(part.trim());
             transform = getTransformFromDirection(part.trim());
+        } else {
+            // Handle radial gradient direction
+            const radialDirectionMatch = part.match(/circle( at (center|top|bottom|right|left)( (top|bottom|right|left))?)?/);
+            console.warn({radialDirectionMatch});
+            if (radialDirectionMatch) {
+                const direction1 = radialDirectionMatch[2] || 'center';
+                const direction2 = radialDirectionMatch[4] || '';
+                const direction = direction2 ? `${direction1} ${direction2}` : direction1;
+                
+                angle = getRadialAngleFromDirection(direction);
+                transform = getRadialTransformFromDirection(direction);
+            }
         }
     }
 
@@ -98,6 +110,19 @@ function getPosition(position: string | undefined, index: number, arrayLength: n
             case 'to top':
                 return calculatedPosition;
             default: // 'to bottom'
+                return calculatedPosition;
+        }
+    } else{
+        switch (direction) {
+            case 'circle at top':
+                return calculatedPosition;
+            case 'circle at right':
+                return calculatedPosition;
+            case 'circle at bottom':
+                return calculatedPosition;
+            case 'circle at left':
+                return calculatedPosition;
+            default: // 'center'
                 return calculatedPosition;
         }
     }
@@ -194,3 +219,64 @@ export function getRgb(color: string) {
     return null;
 }
 
+function getRadialAngleFromDirection(direction: string): number {
+    switch (direction) {
+        case 'top':
+        case 'center top':
+        case 'left top':
+        case 'right top':
+            return 0;
+        case 'right':
+        case 'center right':
+        case 'top right':
+        case 'bottom right':
+            return 90;
+        case 'bottom':
+        case 'center bottom':
+        case 'left bottom':
+        case 'right bottom':
+            return 180;
+        case 'left':
+        case 'center left':
+        case 'top left':
+        case 'bottom left':
+            return -90;
+        default: // 'center'
+            return 0;
+    }
+}
+
+function getRadialTransformFromDirection(direction: string) {
+    switch (direction) {
+        case 'top':
+        case 'center top':
+            return { x: 0, y: 0.5 };
+        case 'left top':
+            return { x: 0.5, y: 0.5 };
+        case 'right top':
+            return { x: -0.5, y: 0.5 };
+        case 'right':
+        case 'center right':
+            return { x: -0.5, y: 0 };
+        case 'top right':
+            return { x: -0.5, y: 0.5 };
+        case 'bottom right':
+            return { x: -0.5, y: -0.5 };
+        case 'bottom':
+        case 'center bottom':
+            return { x: 0, y: -0.5 };
+        case 'left bottom':
+            return { x: 0.5, y: -0.5 };
+        case 'right bottom':
+            return { x: -0.5, y: -0.5 };
+        case 'left':
+        case 'center left':
+            return { x: 0.5, y: 0 };
+        case 'top left':
+            return { x: 0.5, y: 0.5 };
+        case 'bottom left':
+            return { x: 0.5, y: -0.5 };
+        default: // 'center'
+            return { x: 0, y: 0 };
+    }
+}
