@@ -274,7 +274,6 @@ function convertDataURIToBinary(dataURI: string) {
 }
 
 const convertToSvg = (value: string, layer: LayerNode) => {
-    console.log('convertToSvg', value);
     const layerSvg = layer as SvgNode;
     layerSvg.type = 'SVG';
     layerSvg.svg = value;
