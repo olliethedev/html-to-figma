@@ -84,11 +84,24 @@ export const processLayer = async (
     
 
     if (layer.type === 'TEXT') {
-        const text = node as TextNode;
+                const text = node as TextNode;
 
         if (layer.fontFamily) {
-            text.fontName = await getMatchingFont(layer.fontFamily);
-
+            const fontNumberToNameMap: { [key: number]: string }  = {
+                200: 'Thin',
+                300: 'Light',
+                400: 'Regular',
+                500: 'Medium',
+                600: 'SemiBold',
+                700: 'Bold',
+                800: 'ExtraBold',
+                900: 'Black',
+            };
+            const fontWeight = fontNumberToNameMap[layer.fontWeight as number] || 'Regular';
+            const fontName = await getMatchingFont(layer.fontFamily, fontWeight);
+            text.fontName = fontName;
+            // @ts-expect-error
+            delete layer.fontWeight;
             delete layer.fontFamily;
         }
 

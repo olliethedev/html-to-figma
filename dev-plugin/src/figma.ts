@@ -16,8 +16,8 @@ interface MsgData {
 
 figma.ui.onmessage = async (msg) => {
     if (msg.type === 'import') {
-        await figma.loadFontAsync(defaultFont);
-
+        await figma.loadFontAsync(defaultFont());
+        
         const { data } = msg;
 
         let { layers } = data as MsgData;

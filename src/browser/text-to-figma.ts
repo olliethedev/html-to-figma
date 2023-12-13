@@ -64,6 +64,18 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
         height = height - paddingTop - paddingBottom;
     }
 
+    const fontWeightMap: { [key: string]: number } = {
+        normal: 400,
+        bold: 700,
+        bolder: 900,
+        lighter: 100,
+    };
+    
+    let fontWeight: string|number = computedStyles.fontWeight;
+    if (isNaN(Number(fontWeight))) {
+        fontWeight = fontWeightMap[fontWeight] || "400"; // Default to 400 if the value is not in the map
+    }
+
     const textNode = {
         x,
         y,
@@ -72,6 +84,7 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
         ref: node,
         type: 'TEXT',
         characters: textValue?.replace(/\s+/g, ' ') || '',
+        fontWeight,
     } as MetaTextNode;
 
     const fills: SolidPaint[] = [];
