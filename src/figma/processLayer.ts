@@ -120,7 +120,7 @@ export const processLayer = async (
             text.height > layer.height
         ) {
 
-            if (adjustments++ > 100) {
+            if (adjustments++ > 10) {
                 console.warn('Too many font adjustments', text, layer);
 
                 break;
