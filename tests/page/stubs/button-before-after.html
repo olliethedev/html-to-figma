@@ -1,6 +1,6 @@
 <html>
     <style>
-        .Button2 { 
+        .Button2 {
             padding: 10px;
             border: 0;
             position: relative;
@@ -8,17 +8,18 @@
         }
         .Button2::before {
             background-color: #fc0;
-            transition: background-color .15s linear;
+            transition: background-color 0.15s linear;
         }
-        
-        .Button2::after, .Button2::before {
+
+        .Button2::after,
+        .Button2::before {
             position: absolute;
             z-index: -1;
             top: 0;
             right: 0;
             bottom: 0;
             left: 0;
-            content: "";
+            content: '';
         }
         .Button2:before {
             border-radius: 4px;

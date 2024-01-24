@@ -14,7 +14,7 @@ export function traverse(
         if (hasChildren<LayerNode>(layer)) {
             // @ts-expect-error
             layer.children.forEach((child) =>
-                traverse(child as LayerNode, cb, layer)
+                traverse(child as LayerNode, cb, layer),
             );
         }
     }
@@ -31,7 +31,7 @@ export function traverseMap<T>(
         if (newLayer?.children?.length) {
             // @ts-expect-error
             newLayer.children = newLayer.children.map((child) =>
-                traverseMap(child, cb, layer)
+                traverseMap(child, cb, layer),
             );
         }
         return newLayer;
@@ -48,7 +48,7 @@ export async function traverseAsync<T>(
         if (hasChildren(layer)) {
             // @ts-ignore
             for (let child of layer.children.reverse()) {
-                await traverseAsync(child as T, cb, layer)
+                await traverseAsync(child as T, cb, layer);
             }
         }
     }
@@ -58,7 +58,8 @@ export function size(obj: object) {
     return Object.keys(obj).length;
 }
 
-export const capitalize = (str: string) => str[0].toUpperCase() + str.substring(1);
+export const capitalize = (str: string) =>
+    str[0].toUpperCase() + str.substring(1);
 
 interface ParsedColor {
     r: number;
@@ -72,7 +73,7 @@ export function getRgb(colorString?: string | null): ParsedColor | null {
         return null;
     }
     const [_1, r, g, b, _2, a] = (colorString!.match(
-        /rgba?\(([\d\.]+), ([\d\.]+), ([\d\.]+)(, ([\d\.]+))?\)/
+        /rgba?\(([\d\.]+), ([\d\.]+), ([\d\.]+)(, ([\d\.]+))?\)/,
     )! || []) as string[];
 
     const none = a && parseFloat(a) === 0;
@@ -107,14 +108,17 @@ export const toPercent = (v: string): number => {
     return !isNaN(n) ? n / 100 : 0;
 };
 
-export const parseUnits = (str?: string | null, relative?: number): null | Unit => {
+export const parseUnits = (
+    str?: string | null,
+    relative?: number,
+): null | Unit => {
     if (!str) {
         return null;
     }
     let value = toNum(str);
     if (relative && !value) {
         const percent = toPercent(str);
-        
+
         if (!percent) return null;
 
         value = relative * percent;
@@ -152,16 +156,16 @@ const parseMultipleCSSValues = (str: string) => {
         if (str[i] === ',' && !skobka) {
             parts.push(str.slice(lastSplitIndex, i));
             lastSplitIndex = i + 1;
-        } else if(str[i] === '(') {
+        } else if (str[i] === '(') {
             skobka = true;
-        } else if(str[i] === ')') {
+        } else if (str[i] === ')') {
             skobka = false;
         }
     }
     parts.push(str.slice(lastSplitIndex));
 
-    return parts.map(s => s.trim());
-}
+    return parts.map((s) => s.trim());
+};
 
 export const parseBoxShadowValue = (str: string): ParsedBoxShadow => {
     // TODO: this is broken for multiple box shadows
@@ -198,20 +202,19 @@ export const parseBoxShadowValue = (str: string): ParsedBoxShadow => {
         offsetY,
         blurRadius,
         spreadRadius,
-        color: parsedColor || { r: 0, g: 0, b: 0, a: 1},
+        color: parsedColor || { r: 0, g: 0, b: 0, a: 1 },
     };
 };
 
 export const getOpacity = (styles: CSSStyleDeclaration) => {
     return Number(styles.opacity);
-}
+};
 
 export const parseBoxShadowValues = (str: string): ParsedBoxShadow[] => {
     const values = parseMultipleCSSValues(str);
 
-    return values.map(s => parseBoxShadowValue(s));
+    return values.map((s) => parseBoxShadowValue(s));
 };
-
 
 export function getImageFills(layer: RectangleNode | TextNode | FrameNode) {
     const images =

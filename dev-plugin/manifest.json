@@ -4,13 +4,9 @@
     "api": "1.0.0",
     "main": "./figma.js",
     "ui": "./index.html",
-    "editorType": [
-      "figma"
-    ],
-    "networkAccess":{
-      "allowedDomains": [
-        "*"
-      ],
-      "reasoning": "We need to access the internet to fetch AI generated design resources, such as images, or fonts."
+    "editorType": ["figma"],
+    "networkAccess": {
+        "allowedDomains": ["*"],
+        "reasoning": "We need to access the internet to fetch AI generated design resources, such as images, or fonts."
     }
-  }
+}

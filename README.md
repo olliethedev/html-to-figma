@@ -8,15 +8,16 @@ Converts DOM nodes to Figma nodes.
 
 Inspired by [figma-html](https://github.com/BuilderIO/figma-html).
 
-*DEMO*: https://www.figma.com/community/plugin/1005496056687344906/html-to-figma-DEV-plugin
+_DEMO_: https://www.figma.com/community/plugin/1005496056687344906/html-to-figma-DEV-plugin
 
 Example: `/dev-plugin`
 
-```npm i html-figma```
+`npm i html-figma`
 
 ## USAGE
 
 ### Browser
+
 ```js
 import { htmlTofigma } from 'html-figma/browser';
 
@@ -26,6 +27,7 @@ const layersMeta = await htmlTofigma(element);
 ```
 
 ### Figma
+
 ```js
 import { addLayersToFrame } from 'html-figma/figma';
 

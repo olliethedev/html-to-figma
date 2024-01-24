@@ -9,8 +9,12 @@ function setData(node: any, key: string, value: string) {
     (node as any).data[key] = value;
 }
 
-export const addConstraintToLayer = (layer: MetaLayerNode, elem?: HTMLElement, pseudo?: string) => {
-    // @ts-expect-error 
+export const addConstraintToLayer = (
+    layer: MetaLayerNode,
+    elem?: HTMLElement,
+    pseudo?: string,
+) => {
+    // @ts-expect-error
     const { getComputedStyle, HTMLElement } = context.window;
 
     if (layer.type === 'SVG') {
@@ -30,17 +34,16 @@ export const addConstraintToLayer = (layer: MetaLayerNode, elem?: HTMLElement, p
         return;
     }
 
-    const el =
-        elem instanceof HTMLElement ? elem : elem.parentElement;
+    const el = elem instanceof HTMLElement ? elem : elem.parentElement;
     const parent = el && el.parentElement;
     if (!el || !parent) return;
 
-const currentDisplay = el.style.display;
+    const currentDisplay = el.style.display;
     // TODO
     // правильно посчитать фиксированную ширину и высоту
     el.style.setProperty('display', 'none', '!important');
     let computed = getComputedStyle(el, pseudo);
-const hasFixedWidth =
+    const hasFixedWidth =
         computed.width && computed.width.trim().endsWith('px');
     const hasFixedHeight =
         computed.height && computed.height.trim().endsWith('px');
@@ -135,14 +138,14 @@ const hasFixedWidth =
             hasAutoMarginLeft && hasAutoMarginRight
                 ? 'CENTER'
                 : hasAutoMarginLeft
-                ? 'MAX'
-                : 'SCALE',
+                  ? 'MAX'
+                  : 'SCALE',
         vertical:
             hasAutoMarginBottom && hasAutoMarginTop
                 ? 'CENTER'
                 : hasAutoMarginTop
-                ? 'MAX'
-                : 'MIN',
+                  ? 'MAX'
+                  : 'MIN',
     };
 };
 

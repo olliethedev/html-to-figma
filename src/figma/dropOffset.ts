@@ -1,7 +1,7 @@
 interface DropOffsetParams {
-    dropPosition: { clientX: number, clientY: number },
-    windowSize: { width: number, height: number },
-    offset: { x: number, y: number },
+    dropPosition: { clientX: number; clientY: number };
+    windowSize: { width: number; height: number };
+    offset: { x: number; y: number };
 }
 
 export function getDropOffset(payload: DropOffsetParams) {
@@ -13,10 +13,12 @@ export function getDropOffset(payload: DropOffsetParams) {
     const xFromCanvas = hasUI
         ? dropPosition.clientX - leftPaneWidth
         : dropPosition.clientX;
-    const yFromCanvas = hasUI ? dropPosition.clientY - 40 : dropPosition.clientY;
+    const yFromCanvas = hasUI
+        ? dropPosition.clientY - 40
+        : dropPosition.clientY;
 
     return {
         x: bounds.x + xFromCanvas / zoom - offset.x,
-        y: bounds.y + yFromCanvas / zoom - offset.y
-    }
+        y: bounds.y + yFromCanvas / zoom - offset.y,
+    };
 }

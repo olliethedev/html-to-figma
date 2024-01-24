@@ -8,17 +8,33 @@ import {
     processImages,
 } from './dom-utils';
 import { getRgb, parseUnits, parseBoxShadowValues, getOpacity } from '../utils';
-import { MetaLayerNode, SvgNode, WithMeta } from '../types';
+import {
+    CounterAxisAlignItems,
+    FlexDirection,
+    LayerNode,
+    MetaLayerNode,
+    PrimaryAxisAlignItems,
+    SvgNode,
+    WithMeta,
+    WRAP_MODE,
+} from '../types';
 import { context, parseGradient, replaceSvgFill } from './utils';
 import { textToFigma } from './text-to-figma';
 import { getBorder, getBorderPin } from './border';
 import { addConstraintToLayer } from './add-constraints';
+import { argv0 } from 'process';
+import { clear } from 'console';
+import { type } from 'os';
+import { setAutoLayoutProps } from './addAutoLayoutProps';
 
 export const elementToFigma = async (
     el: Element,
-    pseudo?: string
+    pseudo?: string,
 ): Promise<MetaLayerNode | undefined> => {
-    console.warn('elementToFigma', el, pseudo);
+    const isAutoLayout =
+        isElemType(el, ElemTypes.Element) &&
+        el.hasAttribute('data-auto-layout');
+    console.warn('elementToFigma', el, pseudo, 'isAutoLayout', isAutoLayout);
     if (el.nodeType === Node.TEXT_NODE) {
         return textToFigma(el);
     }
@@ -58,7 +74,6 @@ export const elementToFigma = async (
         } as WithMeta<SvgNode>;
     }
 
-
     const rect = getBoundingClientRect(el, pseudo);
 
     if (rect.width < 1 || rect.height < 1) {
@@ -92,6 +107,7 @@ export const elementToFigma = async (
         fills: fills as any,
         children: [],
         opacity: getOpacity(computedStyle),
+        isAutoLayout,
     } as WithMeta<FrameNode>;
 
     const zIndex = Number(computedStyle.zIndex);
@@ -100,55 +116,75 @@ export const elementToFigma = async (
     }
 
     const gradient = parseGradient(computedStyle.backgroundImage);
-    
+
     if (gradient) {
         console.warn('gradient', JSON.stringify(gradient));
-        const fills: Paint[] = Array.isArray(rectNode.fills) ? [...rectNode.fills] : [];
+        const fills: Paint[] = Array.isArray(rectNode.fills)
+            ? [...rectNode.fills]
+            : [];
         if (gradient.type === 'GRADIENT_LINEAR') {
             fills.push({
                 type: 'GRADIENT_LINEAR',
-                gradientStops: gradient.colorStops.map(stop => {
-                    if (stop.color) {
-                        return {
-                            color: {
-                                r: stop.color.r,
-                                g: stop.color.g,
-                                b: stop.color.b,
-                                a: stop.color.a !== undefined ? stop.color.a : 1,
-                            },
-                            position: stop.position,
+                gradientStops: gradient.colorStops
+                    .map((stop) => {
+                        if (stop.color) {
+                            return {
+                                color: {
+                                    r: stop.color.r,
+                                    g: stop.color.g,
+                                    b: stop.color.b,
+                                    a:
+                                        stop.color.a !== undefined
+                                            ? stop.color.a
+                                            : 1,
+                                },
+                                position: stop.position,
+                            };
                         }
-                    }
-                }).filter(Boolean) as ColorStop[],
+                    })
+                    .filter(Boolean) as ColorStop[],
                 gradientTransform: [
-                    [Math.cos(gradient.angle), Math.sin(gradient.angle), gradient.transform.x],
-                    [-Math.sin(gradient.angle), Math.cos(gradient.angle), gradient.transform.y]
+                    [
+                        Math.cos(gradient.angle),
+                        Math.sin(gradient.angle),
+                        gradient.transform.x,
+                    ],
+                    [
+                        -Math.sin(gradient.angle),
+                        Math.cos(gradient.angle),
+                        gradient.transform.y,
+                    ],
                 ],
             });
         } else if (gradient.type === 'GRADIENT_RADIAL') {
             fills.push({
                 type: 'GRADIENT_RADIAL',
-                gradientStops: gradient.colorStops.map(stop => {
-                    if (stop.color) {
-                        return {
-                            color: {
-                                r: stop.color.r,
-                                g: stop.color.g,
-                                b: stop.color.b,
-                                a: stop.color.a !== undefined ? stop.color.a : 1,
-                            },
-                            position: stop.position,
+                gradientStops: gradient.colorStops
+                    .map((stop) => {
+                        if (stop.color) {
+                            return {
+                                color: {
+                                    r: stop.color.r,
+                                    g: stop.color.g,
+                                    b: stop.color.b,
+                                    a:
+                                        stop.color.a !== undefined
+                                            ? stop.color.a
+                                            : 1,
+                                },
+                                position: stop.position,
+                            };
                         }
-                    }
-                }).filter(Boolean) as ColorStop[],
+                    })
+                    .filter(Boolean) as ColorStop[],
                 gradientTransform: [
                     [1, 0, gradient.transform.x],
-                    [0, 1, gradient.transform.y]
-                ]
+                    [0, 1, gradient.transform.y],
+                ],
             });
         }
         console.warn('fills', JSON.stringify(fills));
-        rectNode.fills = [...rectNode.fills as Paint[], ...fills];
+        rectNode.fills = [...(rectNode.fills as Paint[]), ...fills];
     }
 
     const stroke = getBorder(computedStyle);
@@ -165,7 +201,7 @@ export const elementToFigma = async (
         computedStyle.backgroundImage !== 'none'
     ) {
         const urlMatch = computedStyle.backgroundImage.match(
-            /url\(['"]?(.*?)['"]?\)/
+            /url\(['"]?(.*?)['"]?\)/,
         );
         const url = urlMatch && urlMatch[1];
 
@@ -239,7 +275,6 @@ export const elementToFigma = async (
         }
     }
 
-
     await processImages(rectNode as any);
 
     if (computedStyle.boxShadow && computedStyle.boxShadow !== 'none') {
@@ -262,34 +297,34 @@ export const elementToFigma = async (
                 x: shadow.offsetX,
                 y: shadow.offsetY,
             },
-            //@ts-expect-error 
+            //@ts-expect-error
         })) as ShadowEffect[];
     }
 
     const borderTopLeftRadius = parseUnits(
         computedStyle.borderTopLeftRadius,
-        rect.height
+        rect.height,
     );
     if (borderTopLeftRadius) {
         rectNode.topLeftRadius = borderTopLeftRadius.value;
     }
     const borderTopRightRadius = parseUnits(
         computedStyle.borderTopRightRadius,
-        rect.height
+        rect.height,
     );
     if (borderTopRightRadius) {
         rectNode.topRightRadius = borderTopRightRadius.value;
     }
     const borderBottomRightRadius = parseUnits(
         computedStyle.borderBottomRightRadius,
-        rect.height
+        rect.height,
     );
     if (borderBottomRightRadius) {
         rectNode.bottomRightRadius = borderBottomRightRadius.value;
     }
     const borderBottomLeftRadius = parseUnits(
         computedStyle.borderBottomLeftRadius,
-        rect.height
+        rect.height,
     );
     if (borderBottomLeftRadius) {
         rectNode.bottomLeftRadius = borderBottomLeftRadius.value;
@@ -298,7 +333,10 @@ export const elementToFigma = async (
     const result = rectNode;
 
     if (!pseudo && getComputedStyle(el, 'before').content !== 'none') {
-        result.before = await elementToFigma(el, 'before') as WithMeta<FrameNode>;
+        result.before = (await elementToFigma(
+            el,
+            'before',
+        )) as WithMeta<FrameNode>;
 
         if (result.before) {
             addConstraintToLayer(result.before, el as HTMLElement, 'before');
@@ -307,7 +345,10 @@ export const elementToFigma = async (
     }
 
     if (!pseudo && getComputedStyle(el, 'after').content !== 'none') {
-        result.after = await elementToFigma(el, 'after') as WithMeta<FrameNode>;
+        result.after = (await elementToFigma(
+            el,
+            'after',
+        )) as WithMeta<FrameNode>;
         if (result.after) {
             addConstraintToLayer(result.after, el as HTMLElement, 'after');
             result.after.name = '::after';
@@ -316,6 +357,10 @@ export const elementToFigma = async (
 
     if (isElemType(el, ElemTypes.Input) || isElemType(el, ElemTypes.Textarea)) {
         result.textValue = textToFigma(el, { fromTextInput: true });
+    }
+
+    if (isAutoLayout) {
+        setAutoLayoutProps(result, computedStyle);
     }
 
     return result;

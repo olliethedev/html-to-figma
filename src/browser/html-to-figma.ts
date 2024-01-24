@@ -5,22 +5,16 @@ import { context } from './utils';
 import { traverse, traverseMap } from '../utils';
 import { ElemTypes, isElemType } from './dom-utils';
 
-const removeMeta = (layerWithMeta: WithMeta<LayerNode>): LayerNode | undefined => {
-    const {
-        textValue,
-        before,
-        after,
-        borders,
-        ref,
-        type,
-        zIndex,
-        ...rest
-    } = layerWithMeta;
-    
+const removeMeta = (
+    layerWithMeta: WithMeta<LayerNode>,
+): LayerNode | undefined => {
+    const { textValue, before, after, borders, ref, type, zIndex, ...rest } =
+        layerWithMeta;
+
     if (!type) return;
 
     return { type, ...rest } as PlainLayerNode;
-}
+};
 
 const mapDOM = async (root: Element): Promise<LayerNode> => {
     const elems: WithMeta<LayerNode>[] = [];
@@ -28,16 +22,16 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
         root,
         NodeFilter.SHOW_ALL,
         null,
-        false
+        false,
     );
     const refs = new Map<Element, MetaLayerNode[]>();
 
     let n: Node | null = walk.currentNode;
-    
+
     do {
         if (!n.parentElement) continue;
         const figmaEl = await elementToFigma(n as Element);
-
+        console.log('figmaEl', figmaEl);
         if (figmaEl) {
             addConstraintToLayer(figmaEl, n as HTMLElement);
 
@@ -45,11 +39,11 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
             refs.set(n.parentElement, [...children, figmaEl]);
             elems.push(figmaEl as WithMeta<LayerNode>);
         }
-    } while (n = walk.nextNode());
-    
+    } while ((n = walk.nextNode()));
+
     const result = elems[0];
 
-    for (let i = 0;i < elems.length; i++) {
+    for (let i = 0; i < elems.length; i++) {
         const elem = elems[i];
         if (elem.type !== 'FRAME') continue;
 
@@ -76,9 +70,12 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
     }
 
     // @ts-expect-error
-    const layersWithoutMeta = traverseMap<WithMeta<LayerNode>>(result, (layer) => {
-        return removeMeta(layer);
-    }) as LayerNode;
+    const layersWithoutMeta = traverseMap<WithMeta<LayerNode>>(
+        result,
+        (layer) => {
+            return removeMeta(layer);
+        },
+    ) as LayerNode;
     // Update all positions and clean
     traverse(layersWithoutMeta, (layer) => {
         if (layer.type === 'FRAME' || layer.type === 'GROUP') {
@@ -96,17 +93,13 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
     });
 
     return layersWithoutMeta;
-}
+};
 
-export async function htmlToFigma(
-    selector: HTMLElement | string = 'body',
-) {
-
+export async function htmlToFigma(selector: HTMLElement | string = 'body') {
     let layers: LayerNode[] = [];
-    const el =
-        isElemType(selector as HTMLElement, ElemTypes.Element)
-            ? selector as HTMLElement
-            : context.document.querySelectorAll(selector as string || 'body')[0];
+    const el = isElemType(selector as HTMLElement, ElemTypes.Element)
+        ? (selector as HTMLElement)
+        : context.document.querySelectorAll((selector as string) || 'body')[0];
 
     if (!el) {
         throw Error(`Element not found`);
@@ -116,7 +109,7 @@ export async function htmlToFigma(
 
     // Process SVG <use> elements
     for (const use of Array.from(
-        el.querySelectorAll('use')
+        el.querySelectorAll('use'),
     ) as SVGUseElement[]) {
         try {
             const symbolSelector = use.href.baseVal;

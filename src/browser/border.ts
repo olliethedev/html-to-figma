@@ -1,9 +1,7 @@
 import { LayerNode, MetaLayerNode, WithRef } from '../types';
 import { capitalize, getRgb } from '../utils';
 
-export const getBorder = (
-    computedStyle: CSSStyleDeclaration
-) => {
+export const getBorder = (computedStyle: CSSStyleDeclaration) => {
     if (!computedStyle.border) {
         return;
     }
@@ -35,7 +33,7 @@ export const getBorder = (
 
 export const getBorderPin = (
     rect: ClientRect,
-    computedStyle: CSSStyleDeclaration
+    computedStyle: CSSStyleDeclaration,
 ) => {
     const directions = ['top', 'left', 'right', 'bottom'];
     const layers = [];
@@ -65,14 +63,14 @@ export const getBorderPin = (
                         dir === 'left'
                             ? rect.left
                             : dir === 'right'
-                            ? rect.right - width
-                            : rect.left,
+                              ? rect.right - width
+                              : rect.left,
                     y:
                         dir === 'top'
                             ? rect.top - height
                             : dir === 'bottom'
-                            ? rect.bottom
-                            : rect.top,
+                              ? rect.bottom
+                              : rect.top,
                     width,
                     height,
                     children: [],
@@ -93,16 +91,18 @@ export const getBorderPin = (
     }
     if (!layers.length) return;
     // return layers;
-    return [{
-        type: 'FRAME',
-        clipsContent: false,
-        name: '::borders',
-        x: Math.round(rect.left),
-        y: Math.round(rect.top),
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-        children: layers,
-        // @ts-expect-error
-        fills: []
-    }] as MetaLayerNode[];
+    return [
+        {
+            type: 'FRAME',
+            clipsContent: false,
+            name: '::borders',
+            x: Math.round(rect.left),
+            y: Math.round(rect.top),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            children: layers,
+            // @ts-expect-error
+            fills: [],
+        },
+    ] as MetaLayerNode[];
 };

@@ -11,7 +11,7 @@ interface LayerCbArgs {
 export async function addLayersToFrame(
     layers: PlainLayerNode[],
     baseFrame: PageNode | FrameNode,
-    onLayerProcess?: (args: LayerCbArgs) => void
+    onLayerProcess?: (args: LayerCbArgs) => void,
 ) {
     for (const rootLayer of layers) {
         await traverseAsync(rootLayer, async (layer, parent) => {

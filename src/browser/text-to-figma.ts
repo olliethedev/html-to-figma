@@ -70,10 +70,10 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
         bolder: 900,
         lighter: 100,
     };
-    
-    let fontWeight: string|number = computedStyles.fontWeight;
+
+    let fontWeight: string | number = computedStyles.fontWeight;
     if (isNaN(Number(fontWeight))) {
-        fontWeight = fontWeightMap[fontWeight] || "400"; // Default to 400 if the value is not in the map
+        fontWeight = fontWeightMap[fontWeight] || '400'; // Default to 400 if the value is not in the map
     }
 
     const textNode = {
@@ -157,7 +157,7 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
     if (computedStyles.textAlign) {
         if (
             ['left', 'center', 'right', 'justified'].includes(
-                computedStyles.textAlign
+                computedStyles.textAlign,
             )
         ) {
             textNode.textAlignHorizontal =

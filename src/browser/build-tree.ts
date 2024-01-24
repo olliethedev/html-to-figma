@@ -57,7 +57,7 @@ function getDepth(node: Element | Node) {
 // export function makeTree(layers: LayerNode[], root: WithRef<FrameNode>) {
 //     // @ts-expect-error
 //     const { getComputedStyle, Element } = context.window;
-    
+
 //     const refMap = new WeakMap<Element | Node | SceneNode, LayerNode>();
 //     // маппинг слоя к дом элементам
 //     layers.forEach((layer) => {
@@ -92,7 +92,7 @@ function getDepth(node: Element | Node) {
 //                     break;
 //                 }
 //                 if (!parentLayer || parentLayer === root) continue;
-                
+
 //                 if (hasChildren(parentLayer)) {
 //                     if (originalParent) {
 //                         const index = (originalParent as any).children.indexOf(

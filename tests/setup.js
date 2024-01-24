@@ -1,5 +1,5 @@
 const { setup: setupDevServer } = require('jest-dev-server');
-const { setup: setupPuppeter } = require('jest-environment-puppeteer')
+const { setup: setupPuppeter } = require('jest-environment-puppeteer');
 const chalk = require('chalk');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
