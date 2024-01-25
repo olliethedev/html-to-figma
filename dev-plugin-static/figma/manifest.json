@@ -1,0 +1,12 @@
+{
+    "name": "html-to-figma-auto-layout DEV-plugin",
+    "id": "1331945921486030669",
+    "api": "1.0.0",
+    "main": "./figma.js",
+    "ui": "./index.html",
+    "editorType": ["figma"],
+    "networkAccess": {
+        "allowedDomains": ["*"],
+        "reasoning": "We need to access the internet to fetch AI generated design resources, such as images, or fonts."
+    }
+}
