@@ -9,22 +9,14 @@ import {
 } from './dom-utils';
 import { getRgb, parseUnits, parseBoxShadowValues, getOpacity } from '../utils';
 import {
-    CounterAxisAlignItems,
-    FlexDirection,
-    LayerNode,
     MetaLayerNode,
-    PrimaryAxisAlignItems,
     SvgNode,
     WithMeta,
-    WRAP_MODE,
 } from '../types';
 import { context, parseGradient, replaceSvgFill } from './utils';
 import { textToFigma } from './text-to-figma';
 import { getBorder, getBorderPin } from './border';
 import { addConstraintToLayer } from './add-constraints';
-import { argv0 } from 'process';
-import { clear } from 'console';
-import { type } from 'os';
 import { setAutoLayoutProps } from './addAutoLayoutProps';
 
 export const elementToFigma = async (

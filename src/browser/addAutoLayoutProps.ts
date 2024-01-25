@@ -1,5 +1,14 @@
+import {
+    CounterAxisAlignItems,
+    FlexDirection,
+    LayerNode,
+    PrimaryAxisAlignItems,
+    WithMeta,
+    WRAP_MODE,
+} from '../types';
+
 export function setAutoLayoutProps(
-    node: WithMeta<Object>,
+    layer: WithMeta<LayerNode>,
     computedStyles: CSSStyleDeclaration,
 ): void {
     const flexProps: {
@@ -72,5 +81,5 @@ export function setAutoLayoutProps(
         flexProps.layoutWrap = flexWrap === 'wrap' ? 'WRAP' : 'NO_WRAP';
     }
 
-    node = Object.assign(node, flexProps);
+    layer = Object.assign(layer, flexProps);
 }

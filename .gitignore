@@ -1,7 +1,6 @@
 node_modules/
 dist/
 build/
-dev-plugin-static
 dev-plugin/dist
 dev-plugin/node_modules/
 .cache
