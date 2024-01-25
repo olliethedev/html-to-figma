@@ -47,13 +47,37 @@ document.addEventListener('DOMContentLoaded', function () {
         <style>
             .flex{
               display:flex;
-              gap:1rem;
+              gap:20px;
+              background:black;
+              width:400px;
+              border:2px solid red;
+              justify-content:center;
+              flex-wrap:wrap;
+              padding:1rem;
+            }
+
+            .box{
+                border:2px solid green;
+                padding:1rem;
+                color:white;
+                width:100px;
             }
         </style
     </head>
     <body id="container">
-        <div class="flex" data-auto-layout="true">
-            <button>Click</button>
+        <div class="flex" data-auto-layout>
+            <div class="box">
+                Box1
+            </div>
+      <div class=" box">
+                Box2
+            </div>
+      <div class=" box">
+                Box3
+            </div>
+      <div class=" box">
+                Box4
+            </div>
         </div>
     </body>
 </html>

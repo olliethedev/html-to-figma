@@ -12,7 +12,7 @@ function setData(node: any, key: string, value: string) {
 export const addConstraintToLayer = (
     layer: MetaLayerNode,
     elem?: HTMLElement,
-    pseudo?: string,
+    pseudo?: string
 ) => {
     // @ts-expect-error
     const { getComputedStyle, HTMLElement } = context.window;

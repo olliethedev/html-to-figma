@@ -69,4 +69,5 @@ export type WithMeta<T> = Partial<Omit<T, 'children'>> & {
     constraints?: FrameNode['constraints'];
     clipsContent?: FrameNode['clipsContent'];
     fontWeight?: number;
+    isAutoLayout?: boolean;
 };

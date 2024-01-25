@@ -4,6 +4,7 @@ import { addConstraintToLayer } from './add-constraints';
 import { context } from './utils';
 import { traverse, traverseMap } from '../utils';
 import { ElemTypes, isElemType } from './dom-utils';
+import { setAutoLayoutProps } from './addAutoLayoutProps';
 
 const removeMeta = (layerWithMeta: WithMeta<LayerNode>): LayerNode | undefined => {
     const {
@@ -14,6 +15,7 @@ const removeMeta = (layerWithMeta: WithMeta<LayerNode>): LayerNode | undefined =
         ref,
         type,
         zIndex,
+        isAutoLayout,
         ...rest
     } = layerWithMeta;
 
@@ -38,6 +40,11 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
         if (!n.parentElement) continue;
         const figmaEl = await elementToFigma(n as Element);
         console.log('figmaEl', figmaEl)
+        const el = n as Element;
+    const isAutoLayout =
+        isElemType(el, ElemTypes.Element) &&
+        el.hasAttribute('data-auto-layout');
+    console.log('elementToFigma', el, 'isAutoLayout', isAutoLayout);
 
         if (figmaEl) {
             addConstraintToLayer(figmaEl, n as HTMLElement);
@@ -45,6 +52,9 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
             const children = refs.get(n.parentElement) || [];
             refs.set(n.parentElement, [...children, figmaEl]);
             elems.push(figmaEl as WithMeta<LayerNode>);
+            if(isAutoLayout) {
+              setAutoLayoutProps(figmaEl, getComputedStyle(el));
+            }
         }
     } while (n = walk.nextNode());
 

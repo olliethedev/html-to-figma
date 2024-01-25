@@ -23,10 +23,6 @@ export const elementToFigma = async (
     el: Element,
     pseudo?: string,
 ): Promise<MetaLayerNode | undefined> => {
-    const isAutoLayout =
-        isElemType(el, ElemTypes.Element) &&
-        el.hasAttribute('data-auto-layout');
-    console.warn('elementToFigma', el, pseudo, 'isAutoLayout', isAutoLayout);
     if (el.nodeType === Node.TEXT_NODE) {
         return textToFigma(el);
     }
@@ -99,7 +95,6 @@ export const elementToFigma = async (
         fills: fills as any,
         children: [],
         opacity: getOpacity(computedStyle),
-        isAutoLayout,
     } as WithMeta<FrameNode>;
 
     const zIndex = Number(computedStyle.zIndex);
@@ -351,9 +346,6 @@ export const elementToFigma = async (
         result.textValue = textToFigma(el, { fromTextInput: true });
     }
 
-    if (isAutoLayout) {
-        setAutoLayoutProps(result, computedStyle);
-    }
 
     return result;
 };
