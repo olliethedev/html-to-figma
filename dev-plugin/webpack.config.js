@@ -9,7 +9,7 @@ module.exports = (env, argv) => {
     );
     const publicPath =
         argv.mode === 'production'
-            ? 'https://theanuragshukla.github.io/html-to-figma-plugin/dev-plugin-static/'
+            ? 'https://theanuragshukla.github.io/html-to-figma/dev-plugin-static/'
             : '/';
     const frameUrl =
         argv.mode === 'production'
