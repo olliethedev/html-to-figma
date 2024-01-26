@@ -46,6 +46,21 @@ interface AutoLayoutProps {
 - all the test layouts can be found in the `examples folder`
 
 ## How I did it
+- [`html-to-figma.ts L:44`](https://github.com/theanuragshukla/html-to-figma/blob/14c68e12225f273cc81716f672188eb9ab6948d1/src/browser/html-to-figma.ts#L44)
+checked if autoLayout properties should be applied or not
+```js
+    const isAutoLayout = isElemType(el, ElemTypes.Element) && el.getAttribute('data-auto-layout')==='true' || false;
+```
+- [`html-to-figma.ts L:55`](https://github.com/theanuragshukla/html-to-figma/blob/14c68e12225f273cc81716f672188eb9ab6948d1/src/browser/html-to-figma.ts#L55)
+if the variable above is set to `true`, apply the properties.
+```js
+ if(isAutoLayout) {
+    setAutoLayoutProps(figmaEl, getComputedStyle(el));
+}
+```
+- [`functon setAutoLayoutProps(...)`](https://github.com/theanuragshukla/html-to-figma/blob/14c68e12225f273cc81716f672188eb9ab6948d1/src/browser/addAutoLayoutProps.ts#L37)
+This function looks for all the properties of the given component and assigns them to the frame.
+
 
 ## Integration Steps
 
@@ -60,3 +75,12 @@ Determine which HTML elements should use Auto Layout. Add the `data-auto-layout=
   <!-- Your Auto Layout content goes here -->
 </div>
 ```
+
+## Problems
+#### issues with the `layoutSizingHorizontal` and `layoutSizingVertical` when css height and width are set to auto.
+
+This issue is there because while rendering, browser automatically replaces `auto` and `%` values to values in `px`, thus marking it as a fixed width.
+
+#### Issues with Ordering of the elements
+
+The elements in the layout are being rendered in reverse order due to some issues in the core logic of this library. I could've fixed it, but that will break compatibility with previous versions. So, leaving it as it is for now.
