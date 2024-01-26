@@ -1,37 +1,22 @@
-# html-figma
+# html-to-figma-auto-layout
 
-**WORK IN PROGRESS**
+Converts DOM nodes to Figma nodes with extended support for adding AutoLayout
 
-![](https://s3-alpha-sig.figma.com/plugins/1005496056687344906/20022/399cc0cb-16e8-404b-b546-414cada784c8-cover?Expires=1630886400&Signature=Nbz0-5O19TeWqidtT42D9wSso8wXEqrhkY8oQ9cBE9aehp4plxzeEXTuHXlBEOi6~85psa1Fr~t6ofvgT1T2QzZLnqaCm6DOjHqdOtG05qXaniN8ptD0zNPWvzCWvEaTLcJvbEZ3hufcITGEOiO~kDg94r~zXKxDkOrKhnFS4YyBfIwd-wm54oHipTvbjhVqnSZwDUGk6ycFuv13ZWD5qAe8-p8qnkWZtu5K~bluHDMPPsD8iKzYoYYjJEBOU4M3NvP~gtNltqJxFTk8bvI3AUtsDKgdyvJY7aJwb1SGEqGq9B1MYxB0EKsIXg6cjgeeyHYgJJVpTWYheHB92b3Hgw__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA)
+Improved [https://github.com/sergcen/html-to-figma](https://github.com/sergcen/html-to-figma).
 
-Converts DOM nodes to Figma nodes.
+_DEMO_: [html-to-figma-auto-layout DEV-plugin](https://www.figma.com/community/plugin/1331945921486030669/html-to-figma-auto-layout-dev-plugin)
 
-Inspired by [figma-html](https://github.com/BuilderIO/figma-html).
 
-_DEMO_: https://www.figma.com/community/plugin/1005496056687344906/html-to-figma-DEV-plugin
+## Integration Steps
 
-Example: `/dev-plugin`
+To integrate Auto Layout into your project, follow these steps:
 
-`npm i html-figma`
+### 1. Identify Auto Layout Elements
 
-## USAGE
+Determine which HTML elements should use Auto Layout. Add the `data-auto-layout="true"` attribute to these elements.
 
-### Browser
-
-```js
-import { htmlTofigma } from 'html-figma/browser';
-
-const element = document.getElementById('#element-to-export');
-
-const layersMeta = await htmlTofigma(element);
-```
-
-### Figma
-
-```js
-import { addLayersToFrame } from 'html-figma/figma';
-
-const rootNode = figma.currentPage;
-
-await addLayersToFrame(layersMeta, rootNode);
+```html
+<div data-auto-layout="true">
+  <!-- Your Auto Layout content goes here -->
+</div>
 ```
