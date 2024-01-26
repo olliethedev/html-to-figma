@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </style
     </head>
     <body id="container">
-        <div class="flex" data-auto-layout>
+        <div class="flex" data-auto-layout="true">
             <div class="box">
                 Box1
             </div>

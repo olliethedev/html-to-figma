@@ -7,120 +7,142 @@ import {
     WRAP_MODE,
 } from '../types';
 
+// Named constants
+const DEFAULT_SPACING = 0;
+const DEFAULT_PADDING = 0;
+
+const justifyContentMapping: Record<string, PrimaryAxisAlignItems> = {
+    'flex-start': 'MIN',
+    'flex-end': 'MAX',
+    center: 'CENTER',
+    'space-between': 'SPACE_BETWEEN',
+    'space-around': 'SPACE_AROUND',
+    'space-evenly': 'SPACE_EVENLY',
+};
+
+const alignItemsMapping: Record<string, CounterAxisAlignItems> = {
+    'flex-start': 'MIN',
+    'flex-end': 'MAX',
+    center: 'CENTER',
+    baseline: 'BASELINE',
+    stretch: 'FILL',
+};
+
+/**
+ * Sets Auto Layout properties for a layer based on computed styles.
+ * @param {WithMeta<LayerNode>} layer - The layer to set Auto Layout properties for.
+ * @param {CSSStyleDeclaration} computedStyles - The computed styles of the layer.
+ * @returns {void}
+ */
 export function setAutoLayoutProps(
     layer: WithMeta<LayerNode>,
     computedStyles: CSSStyleDeclaration
 ): void {
-    const flexProps: {
-        layoutMode: FlexDirection;
-        itemSpacing: number;
-        counterAxisSpacing: number;
-        primaryAxisAlignItems: PrimaryAxisAlignItems;
-        counterAxisAlignItems: CounterAxisAlignItems;
-        layoutWrap: WRAP_MODE;
-        layoutSizingVertical: 'FIXED' | 'HUG' | 'FILL';
-        paddingTop: number;
-        paddingRight: number;
-        paddingBottom: number;
-        paddingLeft: number;
-    } = {
-        layoutMode: 'HORIZONTAL',
-        itemSpacing: 0,
-        counterAxisSpacing: 0,
-        primaryAxisAlignItems: 'MIN',
-        counterAxisAlignItems: 'MIN',
-        layoutWrap: 'NO_WRAP',
-        layoutSizingVertical: 'HUG',
-        paddingTop: 0,
-        paddingRight: 0,
-        paddingBottom: 0,
-        paddingLeft: 0,
+    // Initialize default FlexProps
+    const flexProps = {
+        layoutMode: 'HORIZONTAL' as FlexDirection,
+        itemSpacing: DEFAULT_SPACING,
+        counterAxisSpacing: DEFAULT_SPACING,
+        primaryAxisAlignItems: 'MIN' as PrimaryAxisAlignItems,
+        counterAxisAlignItems: 'MIN' as CounterAxisAlignItems,
+        layoutWrap: 'NO_WRAP' as WRAP_MODE,
+        layoutSizingVertical: 'HUG' as 'FIXED' | 'HUG' | 'FILL',
+        layoutSizingHorizontal: 'FILL' as 'FIXED' | 'HUG' | 'FILL',
+        paddingTop: DEFAULT_PADDING,
+        paddingRight: DEFAULT_PADDING,
+        paddingBottom: DEFAULT_PADDING,
+        paddingLeft: DEFAULT_PADDING,
+        alignContent: 'stretch',
+        alignSelf: 'auto',
+        minHeight: undefined as number | undefined,
+        maxHeight: undefined as number | undefined,
+        minWidth: undefined as number | undefined,
+        maxWidth: undefined as number | undefined,
     };
 
-    const display = computedStyles.getPropertyValue('display');
-    const gap = computedStyles.getPropertyValue('gap');
-    const justifyContent = computedStyles.getPropertyValue('justify-content');
-    const alignItems = computedStyles.getPropertyValue('align-items');
-    const flexDirection = computedStyles.getPropertyValue('flex-direction');
-    const flexWrap = computedStyles.getPropertyValue('flex-wrap');
-    const paddingTop = computedStyles.getPropertyValue('padding-top');
-    const paddingRight = computedStyles.getPropertyValue('padding-right');
-    const paddingBottom = computedStyles.getPropertyValue('padding-bottom');
-    const paddingLeft = computedStyles.getPropertyValue('padding-left');
+    const {
+        display,
+        gap,
+        justifyContent,
+        alignItems,
+        flexDirection,
+        flexWrap,
+        paddingTop,
+        paddingRight,
+        paddingBottom,
+        paddingLeft,
+        flexGrow,
+        width,
+        height,
+    } = computedStyles;
 
-    if (display === 'flex')
+    // Set layoutMode based on display and flexDirection
+    if (display === 'flex') {
         flexProps.layoutMode =
             flexDirection === 'row' ? 'HORIZONTAL' : 'VERTICAL';
+    }
 
-    // handling gap
-
+    // Set itemSpacing and counterAxisSpacing based on gap
     if (gap && gap !== 'normal') {
         const gapValues = gap
             .trim()
             .split(' ')
             .map((value) => parseInt(value, 10));
-        if (gapValues.length === 1) {
-            // if only one value is provided, it is used for both axes
-            flexProps.itemSpacing = gapValues[0];
-            flexProps.counterAxisSpacing = gapValues[0];
-        } else if (gapValues.length === 2) {
-            // if two values are provided, the first is used for the primary axis and the second for the counter axis
-            flexProps.itemSpacing =
-                flexProps.layoutMode === 'HORIZONTAL'
-                    ? gapValues[0]
-                    : gapValues[1];
-            flexProps.counterAxisSpacing =
-                flexProps.layoutMode === 'HORIZONTAL'
-                    ? gapValues[1]
-                    : gapValues[0];
-        }
-    }
-    switch (justifyContent) {
-        case 'flex-start':
-            flexProps.primaryAxisAlignItems = 'MIN';
-            break;
-        case 'flex-end':
-            flexProps.primaryAxisAlignItems = 'MAX';
-            break;
-        case 'center':
-            flexProps.primaryAxisAlignItems = 'CENTER';
-            break;
-        case 'space-between':
-            flexProps.primaryAxisAlignItems = 'SPACE_BETWEEN';
-            break;
-        case 'space-around':
-            flexProps.primaryAxisAlignItems = 'SPACE_AROUND';
-            break;
-        case 'space-evenly':
-            flexProps.primaryAxisAlignItems = 'SPACE_EVENLY';
-            break;
+        flexProps.itemSpacing = gapValues[0] || 0;
+        flexProps.counterAxisSpacing = gapValues[1] || gapValues[0] || 0;
     }
 
-    switch (alignItems) {
-        case 'flex-start':
-            flexProps.counterAxisAlignItems = 'MIN';
-            break;
-        case 'flex-end':
-            flexProps.counterAxisAlignItems = 'MAX';
-            break;
-        case 'center':
-            flexProps.counterAxisAlignItems = 'CENTER';
-            break;
-        case 'baseline':
-            flexProps.counterAxisAlignItems = 'BASELINE';
-            break;
-        case 'stretch':
-            flexProps.counterAxisAlignItems = 'FILL';
-            break;
+    // Set primaryAxisAlignItems based on justifyContent
+
+    flexProps.primaryAxisAlignItems =
+        justifyContentMapping[justifyContent] || 'MIN';
+
+    // Set counterAxisAlignItems based on alignItems
+    flexProps.counterAxisAlignItems = alignItemsMapping[alignItems] || 'MIN';
+
+    // Set layoutSizingVertical and layoutSizingHorizontal based on width
+    if (width.endsWith('%')) {
+        flexProps.layoutSizingHorizontal = 'FILL';
+    } else if (width.endsWith('px')) {
+        flexProps.layoutSizingHorizontal = 'FIXED';
+    } else {
+        flexProps.layoutSizingHorizontal = 'HUG';
     }
 
-    flexProps.paddingTop = parseInt(paddingTop, 10);
-    flexProps.paddingRight = parseInt(paddingRight, 10);
-    flexProps.paddingBottom = parseInt(paddingBottom, 10);
-    flexProps.paddingLeft = parseInt(paddingLeft, 10);
+    // Set layoutSizingVertical based on height
+    if (height.endsWith('%')) {
+        flexProps.layoutSizingVertical = 'FILL';
+    } else if (height.endsWith('px')) {
+        flexProps.layoutSizingVertical = 'FIXED';
+    } else {
+        flexProps.layoutSizingVertical = 'HUG';
+    }
+    flexProps.layoutSizingVertical = 'HUG';
 
+    // Set padding values
+    flexProps.paddingTop = parseInt(paddingTop, 10) || DEFAULT_PADDING;
+    flexProps.paddingRight = parseInt(paddingRight, 10) || DEFAULT_PADDING;
+    flexProps.paddingBottom = parseInt(paddingBottom, 10) || DEFAULT_PADDING;
+    flexProps.paddingLeft = parseInt(paddingLeft, 10) || DEFAULT_PADDING;
+
+    // Set layoutGrow
+    layer.layoutGrow = parseInt(flexGrow, 10) || 0;
+
+    // Set minHeight, maxHeight, minWidth, maxWidth only if they are explicitly set
+    flexProps.minHeight =
+        parseFloat(computedStyles.getPropertyValue('min-height')) || undefined;
+    flexProps.maxHeight =
+        parseFloat(computedStyles.getPropertyValue('max-height')) || undefined;
+    flexProps.minWidth =
+        parseFloat(computedStyles.getPropertyValue('min-width')) || undefined;
+    flexProps.maxWidth =
+        parseFloat(computedStyles.getPropertyValue('max-width')) || undefined;
+
+    // Set layoutWrap based on flexWrap when layoutMode is HORIZONTAL
     if (flexProps.layoutMode === 'HORIZONTAL') {
         flexProps.layoutWrap = flexWrap === 'wrap' ? 'WRAP' : 'NO_WRAP';
     }
-    layer = Object.assign(layer, flexProps);
+
+    // Assign flexProps to the layer
+    Object.assign(layer, flexProps);
 }

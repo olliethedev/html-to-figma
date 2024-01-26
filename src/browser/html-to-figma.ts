@@ -42,8 +42,7 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
         console.log('figmaEl', figmaEl)
         const el = n as Element;
     const isAutoLayout =
-        isElemType(el, ElemTypes.Element) &&
-        el.hasAttribute('data-auto-layout');
+        isElemType(el, ElemTypes.Element) && el.getAttribute('data-auto-layout')==='true' || false;
     console.log('elementToFigma', el, 'isAutoLayout', isAutoLayout);
 
         if (figmaEl) {
@@ -52,6 +51,7 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
             const children = refs.get(n.parentElement) || [];
             refs.set(n.parentElement, [...children, figmaEl]);
             elems.push(figmaEl as WithMeta<LayerNode>);
+
             if(isAutoLayout) {
               setAutoLayoutProps(figmaEl, getComputedStyle(el));
             }
