@@ -1,18 +1,10 @@
 export type FlexDirection = 'HORIZONTAL' | 'VERTICAL';
 export type PrimaryAxisAlignItems =
-    | 'MIN'
-    | 'MAX'
-    | 'CENTER'
-    | 'SPACE_BETWEEN'
-    | 'SPACE_AROUND'
-    | 'SPACE_EVENLY';
+    |'MIN' | 'MAX' | 'CENTER' | 'SPACE_BETWEEN';
 export type CounterAxisAlignItems =
-    | 'MIN'
-    | 'MAX'
-    | 'CENTER'
-    | 'BASELINE'
-    | 'FILL';
+'MIN' | 'MAX' | 'CENTER' | 'BASELINE';
 export type WRAP_MODE = 'WRAP' | 'NO_WRAP';
+
 
 export interface Unit {
     unit: 'PIXELS';

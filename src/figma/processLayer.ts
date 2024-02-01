@@ -60,6 +60,7 @@ export const processLayer = async (
     baseFrame: PageNode | FrameNode,
 ) => {
     const parentFrame = (parent?.ref as FrameNode) || baseFrame;
+    console.log('Processing layer', layer.name);
 
     if (typeof layer.x !== 'number' || typeof layer.y !== 'number') {
         throw Error('Layer coords not defined');
@@ -78,7 +79,9 @@ export const processLayer = async (
     }
 
     if (SIMPLE_TYPES.includes(layer.type as string)) {
-        parentFrame.appendChild(processDefaultElement(layer, node));
+        //first add to parent to satisfy figma parent safety checks
+        parentFrame.appendChild(node);
+        processDefaultElement(layer, node)
     }
     // @ts-expect-error
     layer.ref = node;

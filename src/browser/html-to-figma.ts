@@ -24,7 +24,7 @@ const removeMeta = (layerWithMeta: WithMeta<LayerNode>): LayerNode | undefined =
     return { type, ...rest } as PlainLayerNode;
 }
 
-const mapDOM = async (root: Element): Promise<LayerNode> => {
+const mapDOM = async (root: Element, useAutoLayout = false): Promise<LayerNode> => {
     const elems: WithMeta<LayerNode>[] = [];
     const walk = context.document.createTreeWalker(
         root,
@@ -42,8 +42,8 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
         console.log('figmaEl', figmaEl)
         const el = n as Element;
     const isAutoLayout =
-        isElemType(el, ElemTypes.Element) && el.getAttribute('data-auto-layout')==='true' || false;
-    console.log('elementToFigma', el, 'isAutoLayout', isAutoLayout);
+        isElemType(el, ElemTypes.Element) && useAutoLayout;
+    
 
         if (figmaEl) {
             addConstraintToLayer(figmaEl, n as HTMLElement);
@@ -53,7 +53,13 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
             elems.push(figmaEl as WithMeta<LayerNode>);
 
             if(isAutoLayout) {
-              setAutoLayoutProps(figmaEl, getComputedStyle(el));
+                const computedStyle = getComputedStyle(el);
+                
+                    console.log('elementToFigma', el, 'isAutoLayout', isAutoLayout);
+                    setAutoLayoutProps(figmaEl, computedStyle, el as HTMLElement);
+                    figmaEl.isAutoLayout = true;
+                
+            //   setAutoLayoutProps(figmaEl, computedStyle);
             }
         }
     } while (n = walk.nextNode());
@@ -83,7 +89,16 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
         }
         elem.after && elem.children.push(elem.after);
 
-        elem.children.sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0));
+        const isAutoLayout = elem.isAutoLayout;
+
+        if(isAutoLayout) {
+            //reverese children order
+            elem.children = elem.children.reverse();
+            //todo: reverese for row-reverse and column-reverse
+        }else{
+            elem.children.sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0));
+        }
+        
     }
 
     // @ts-expect-error
@@ -111,6 +126,7 @@ const mapDOM = async (root: Element): Promise<LayerNode> => {
 
 export async function htmlToFigma(
     selector: HTMLElement | string = 'body',
+    useAutoLayout = false
 ) {
 
     let layers: LayerNode[] = [];
@@ -150,7 +166,7 @@ export async function htmlToFigma(
     //     },
     //     [] as Element[]
     // );
-    const data = await mapDOM(el);
+    const data = await mapDOM(el, useAutoLayout);
 
     return data ? data : [];
 }

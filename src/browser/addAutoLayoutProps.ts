@@ -10,14 +10,15 @@ import {
 // Named constants
 const DEFAULT_SPACING = 0;
 const DEFAULT_PADDING = 0;
+const DEFAULT_MARGIN = 0;
 
 const justifyContentMapping: Record<string, PrimaryAxisAlignItems> = {
     'flex-start': 'MIN',
     'flex-end': 'MAX',
     center: 'CENTER',
     'space-between': 'SPACE_BETWEEN',
-    'space-around': 'SPACE_AROUND',
-    'space-evenly': 'SPACE_EVENLY',
+    'space-around': 'SPACE_BETWEEN',
+    'space-evenly': 'SPACE_BETWEEN',
 };
 
 const alignItemsMapping: Record<string, CounterAxisAlignItems> = {
@@ -25,8 +26,33 @@ const alignItemsMapping: Record<string, CounterAxisAlignItems> = {
     'flex-end': 'MAX',
     center: 'CENTER',
     baseline: 'BASELINE',
-    stretch: 'FILL',
+    stretch: 'CENTER',
 };
+
+type FlexPropsType =  {
+    layoutMode: FlexDirection,
+    itemSpacing: number,
+    counterAxisSpacing: number,
+    primaryAxisAlignItems: PrimaryAxisAlignItems,
+    counterAxisAlignItems: CounterAxisAlignItems,
+    layoutWrap: WRAP_MODE,
+    layoutSizingVertical: 'FIXED' | 'HUG' | 'FILL',
+    layoutSizingHorizontal: 'FIXED' | 'HUG' | 'FILL',
+    paddingTop: number,
+    paddingRight: number,
+    paddingBottom: number,
+    paddingLeft: number,
+    marginTop: number,
+    marginRight: number,
+    marginBottom: number,
+    marginLeft: number,
+    alignContent: string,
+    alignSelf: string,
+    minHeight: number | undefined,
+    maxHeight: number | undefined,
+    minWidth: number | undefined,
+    maxWidth: number | undefined,
+}
 
 /**
  * Sets Auto Layout properties for a layer based on computed styles.
@@ -36,10 +62,11 @@ const alignItemsMapping: Record<string, CounterAxisAlignItems> = {
  */
 export function setAutoLayoutProps(
     layer: WithMeta<LayerNode>,
-    computedStyles: CSSStyleDeclaration
+    computedStyles: CSSStyleDeclaration,
+    element: HTMLElement
 ): void {
     // Initialize default FlexProps
-    const flexProps = {
+    const flexProps: FlexPropsType = {
         layoutMode: 'HORIZONTAL' as FlexDirection,
         itemSpacing: DEFAULT_SPACING,
         counterAxisSpacing: DEFAULT_SPACING,
@@ -52,6 +79,10 @@ export function setAutoLayoutProps(
         paddingRight: DEFAULT_PADDING,
         paddingBottom: DEFAULT_PADDING,
         paddingLeft: DEFAULT_PADDING,
+        marginTop: DEFAULT_MARGIN,
+        marginRight: DEFAULT_MARGIN,
+        marginBottom: DEFAULT_MARGIN,
+        marginLeft: DEFAULT_MARGIN,
         alignContent: 'stretch',
         alignSelf: 'auto',
         minHeight: undefined as number | undefined,
@@ -71,15 +102,43 @@ export function setAutoLayoutProps(
         paddingRight,
         paddingBottom,
         paddingLeft,
+        marginTop,
+        marginRight,
+        marginBottom,
+        marginLeft,
         flexGrow,
         width,
         height,
     } = computedStyles;
 
+    console.log('computedStyles', {
+        display,
+        gap,
+        justifyContent,
+        alignItems,
+        flexDirection,
+        flexWrap,
+        paddingTop,
+        paddingRight,
+        paddingBottom,
+        paddingLeft,
+        marginTop,
+        marginRight,
+        marginBottom,
+        marginLeft,
+        flexGrow,
+        width,
+        height,
+    });
+
+    const parent = element.parentElement;
+
     // Set layoutMode based on display and flexDirection
     if (display === 'flex') {
         flexProps.layoutMode =
-            flexDirection === 'row' ? 'HORIZONTAL' : 'VERTICAL';
+            flexDirection === 'row' || flexDirection === 'row-reverse' ? 'HORIZONTAL' : 'VERTICAL';
+    }else{
+        flexProps.layoutMode = 'VERTICAL';
     }
 
     // Set itemSpacing and counterAxisSpacing based on gap
@@ -100,30 +159,66 @@ export function setAutoLayoutProps(
     // Set counterAxisAlignItems based on alignItems
     flexProps.counterAxisAlignItems = alignItemsMapping[alignItems] || 'MIN';
 
-    // Set layoutSizingVertical and layoutSizingHorizontal based on width
-    if (width.endsWith('%')) {
-        flexProps.layoutSizingHorizontal = 'FILL';
-    } else if (width.endsWith('px')) {
-        flexProps.layoutSizingHorizontal = 'FIXED';
-    } else {
-        flexProps.layoutSizingHorizontal = 'HUG';
-    }
+    
 
-    // Set layoutSizingVertical based on height
-    if (height.endsWith('%')) {
-        flexProps.layoutSizingVertical = 'FILL';
-    } else if (height.endsWith('px')) {
+
+    // Set layoutSizingVertical and layoutSizingHorizontal based on width and height
+    // set to FILL if width or height is set to 100% or if parent is a flex container
+    const{ width: styleWidth, height: styleHeight } = element.style;
+    console.log({
+        width,
+        styleWidth,
+        height,
+        styleHeight,
+    });
+    if(isBodyElement(element)){
+        console.log('isBodyElement');
+        flexProps.layoutSizingHorizontal = 'FIXED';
         flexProps.layoutSizingVertical = 'FIXED';
+    }else if (!isInsideFlexContainer(element)) {
+        console.log('!isInsideFlexContainer');
+        flexProps.layoutSizingHorizontal = !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'HUG';
+        flexProps.layoutSizingVertical = parsePixelValue(styleHeight) > 0 ? 'FIXED' : 'HUG';
+    }else if (width === '100%' || height === '100%') {
+        console.log('width === 100% || height === 100%');
+        flexProps.layoutSizingHorizontal = 'FILL';
+        flexProps.layoutSizingVertical = 'FILL';
     } else {
-        flexProps.layoutSizingVertical = 'HUG';
+        console.log('else');
+        
+        
+        const parentFlexDirectionRaw = parent && getComputedStyle(parent).flexDirection;
+        const parentFlexDirection= parentFlexDirectionRaw === 'row' || flexDirection === 'row-reverse' ? 'HORIZONTAL' : 'VERTICAL';
+        if(parentFlexDirection=== 'HORIZONTAL'){
+            if(width === '100%'){
+                flexProps.layoutSizingHorizontal = 'FILL';
+            } else if(height === '100%'){
+                flexProps.layoutSizingVertical = 'FILL';
+            } else{
+                flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
+                flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
+            }
+        }else if(parentFlexDirection === 'VERTICAL'){
+            if(height === '100%'){
+                flexProps.layoutSizingVertical = 'FILL';
+            } else if(width === '100%'){
+                flexProps.layoutSizingHorizontal = 'FILL';
+            } else{
+                flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'FIXED';
+                flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
+            }
+            
+        }
     }
-    flexProps.layoutSizingVertical = 'HUG';
 
     // Set padding values
     flexProps.paddingTop = parseInt(paddingTop, 10) || DEFAULT_PADDING;
     flexProps.paddingRight = parseInt(paddingRight, 10) || DEFAULT_PADDING;
     flexProps.paddingBottom = parseInt(paddingBottom, 10) || DEFAULT_PADDING;
     flexProps.paddingLeft = parseInt(paddingLeft, 10) || DEFAULT_PADDING;
+
+    // Set margin values
+
 
     // Set layoutGrow
     layer.layoutGrow = parseInt(flexGrow, 10) || 0;
@@ -139,10 +234,35 @@ export function setAutoLayoutProps(
         parseFloat(computedStyles.getPropertyValue('max-width')) || undefined;
 
     // Set layoutWrap based on flexWrap when layoutMode is HORIZONTAL
-    if (flexProps.layoutMode === 'HORIZONTAL') {
-        flexProps.layoutWrap = flexWrap === 'wrap' ? 'WRAP' : 'NO_WRAP';
-    }
+    flexProps.layoutWrap = flexWrap === 'wrap' || flexWrap === 'wrap-reverse'
+    ? 'WRAP' : 'NO_WRAP';
 
     // Assign flexProps to the layer
     Object.assign(layer, flexProps);
+}
+
+function parsePixelValue(value: string): number {
+    return parseInt(value.replace('px', ''), 10) || 0;
+}
+
+function parseSizeValue(value: string): number {
+    if (value.endsWith('px')) {
+        return parseInt(value, 10);
+    }
+    // Handle other units or default to 0 for unsupported units
+    // TODO: Implement conversion for em, rem, vh, vw, etc., if needed
+    return 0;
+}
+
+function isInsideFlexContainer(element: HTMLElement) {
+    const parent = element.parentElement;
+    return parent && getComputedStyle(parent).display === 'flex';
+}
+
+function isBodyElement(element: HTMLElement) {
+    return element.tagName === 'BODY';
+}
+
+function isEmptyString(value: string): boolean {
+    return value.trim() === '';
 }

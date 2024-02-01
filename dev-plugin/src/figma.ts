@@ -15,7 +15,8 @@ interface MsgData {
 
 figma.ui.onmessage = async (msg) => {
     if (msg.type === 'import') {
-        await figma.loadFontAsync(defaultFont());
+        await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
+        console.warn("loaded font")
 
         const { data } = msg;
 

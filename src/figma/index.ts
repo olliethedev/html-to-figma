@@ -16,6 +16,7 @@ export async function addLayersToFrame(
     for (const rootLayer of layers) {
         await traverseAsync(rootLayer, async (layer, parent) => {
             try {
+                console.log('Processing layer:', layer);
                 const node = await processLayer(layer, parent, baseFrame);
 
                 onLayerProcess?.({ node, layer, parent });
