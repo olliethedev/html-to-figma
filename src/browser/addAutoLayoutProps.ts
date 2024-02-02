@@ -107,6 +107,8 @@ export function setAutoLayoutProps(
         marginBottom,
         marginLeft,
         flexGrow,
+        flexShrink,
+        flexBasis,
         width,
         height,
     } = computedStyles;
@@ -132,6 +134,8 @@ export function setAutoLayoutProps(
     });
 
     const parent = element.parentElement;
+
+    
 
     // Set layoutMode based on display and flexDirection
     if (display === 'flex') {
@@ -164,7 +168,7 @@ export function setAutoLayoutProps(
 
     // Set layoutSizingVertical and layoutSizingHorizontal based on width and height
     // set to FILL if width or height is set to 100% or if parent is a flex container
-    const{ width: styleWidth, height: styleHeight } = element.style;
+    const{ width: styleWidth, height: styleHeight, flexGrow: styleFlexGrow } = element.style;
     console.log({
         width,
         styleWidth,
@@ -194,6 +198,15 @@ export function setAutoLayoutProps(
                 flexProps.layoutSizingHorizontal = 'FILL';
             } else if(height === '100%'){
                 flexProps.layoutSizingVertical = 'FILL';
+            }else if (flexBasis !== 'auto' && flexBasis !== '0%') {
+                const basisValue = parseSizeValue(flexBasis);
+                console.log('basisValue', basisValue);
+                flexProps.layoutSizingHorizontal = basisValue > 0 ? 'FIXED' : 'HUG';
+            }else if(styleFlexGrow){
+                // Set layoutGrow
+                console.log('flexBasis', flexBasis);
+                const flexGrowValue = parseInt(flexGrow, 10);
+                flexProps.layoutSizingHorizontal = 'FILL';
             } else{
                 flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
                 flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
@@ -203,6 +216,15 @@ export function setAutoLayoutProps(
                 flexProps.layoutSizingVertical = 'FILL';
             } else if(width === '100%'){
                 flexProps.layoutSizingHorizontal = 'FILL';
+            }else if (flexBasis !== 'auto' && flexBasis !== '0%') {
+                const basisValue = parseSizeValue(flexBasis);
+                console.log('basisValue', basisValue);
+                flexProps.layoutSizingVertical = basisValue > 0 ? 'FIXED' : 'HUG';
+            }else if(styleFlexGrow){
+                // Set layoutGrow
+                console.log('flexBasis', flexBasis);
+                const flexGrowValue = parseInt(flexGrow, 10);
+                flexProps.layoutSizingVertical = 'FILL';
             } else{
                 flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'FIXED';
                 flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
@@ -220,8 +242,7 @@ export function setAutoLayoutProps(
     // Set margin values
 
 
-    // Set layoutGrow
-    layer.layoutGrow = parseInt(flexGrow, 10) || 0;
+    
 
     // Set minHeight, maxHeight, minWidth, maxWidth only if they are explicitly set
     flexProps.minHeight =
@@ -232,6 +253,10 @@ export function setAutoLayoutProps(
         parseFloat(computedStyles.getPropertyValue('min-width')) || undefined;
     flexProps.maxWidth =
         parseFloat(computedStyles.getPropertyValue('max-width')) || undefined;
+
+        const flexBasisValue = parseSizeValue(flexBasis);
+        console.log('flexBasisValue', flexBasisValue);
+    
 
     // Set layoutWrap based on flexWrap when layoutMode is HORIZONTAL
     flexProps.layoutWrap = flexWrap === 'wrap' || flexWrap === 'wrap-reverse'

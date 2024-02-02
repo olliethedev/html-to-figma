@@ -138,12 +138,32 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="flex-item">3</div>
     <div class="flex-item">4</div>
 </div>
+<h2>Justinfy And Align</h2>
+<h3>Space Between and Center</h3>
+<div class="flex-container" style="justify-content: space-between; align-items: center; height: 200px;">
+    <div class="flex-item">5</div>
+    <div class="flex-item">6</div>
+    <div class="flex-item">7</div>
+</div>
+<h3>Center and Center</h3>
+<div class="flex-container" style="justify-content: center; align-items: center; height: 200px;">
+    <div class="flex-item">8</div>
+    <div class="flex-item">9</div>
+    <div class="flex-item">10</div>
+</div>
 <!-- Flex Grow, Shrink, Basis -->
 <h2>Flex Grow, Shrink, Basis</h2>
+<h3>Horizontal</h3>
 <div class="flex-container">
-    <div class="flex-item" style="flex-grow: 1; flex-basis: 100px;">A1</div>
+    <div class="flex-item" style="flex-grow: 1;">A1</div>
     <div class="flex-item" style="flex-shrink: 2;">B2</div>
-    <div class="flex-item" style="flex-basis: 150px;">C3</div>
+    <div class="flex-item" style="flex-basis: 70px;">C3</div>
+</div>
+<h3>Vertical</h3>
+<div class="flex-container" style="flex-direction: column; height: 200px;">
+    <div class="flex-item" style="flex-grow: 1;">A1</div>
+    <div class="flex-item" style="flex-shrink: 2;">B2</div>
+    <div class="flex-item" style="flex-basis: 70px;">C3</div>
 </div>
 <!-- Flex Wrap -->
 <h2>Flex Wrap</h2>
