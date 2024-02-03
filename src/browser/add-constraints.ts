@@ -39,8 +39,6 @@ export const addConstraintToLayer = (
     if (!el || !parent) return;
 
     const currentDisplay = el.style.display;
-    // TODO
-    // правильно посчитать фиксированную ширину и высоту
     el.style.setProperty('display', 'none', '!important');
     let computed = getComputedStyle(el, pseudo);
     const hasFixedWidth =

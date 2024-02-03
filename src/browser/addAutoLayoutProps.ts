@@ -46,8 +46,6 @@ type FlexPropsType =  {
     marginRight: number,
     marginBottom: number,
     marginLeft: number,
-    alignContent: string,
-    alignSelf: string,
     minHeight: number | undefined,
     maxHeight: number | undefined,
     minWidth: number | undefined,
@@ -83,8 +81,6 @@ export function setAutoLayoutProps(
         marginRight: DEFAULT_MARGIN,
         marginBottom: DEFAULT_MARGIN,
         marginLeft: DEFAULT_MARGIN,
-        alignContent: 'stretch',
-        alignSelf: 'auto',
         minHeight: undefined as number | undefined,
         maxHeight: undefined as number | undefined,
         minWidth: undefined as number | undefined,
@@ -241,7 +237,10 @@ export function setAutoLayoutProps(
 
     // Set margin values
 
-
+    flexProps.marginTop = parseInt(marginTop, 10) || DEFAULT_MARGIN;
+    flexProps.marginRight = parseInt(marginRight, 10) || DEFAULT_MARGIN;
+    flexProps.marginBottom = parseInt(marginBottom, 10) || DEFAULT_MARGIN;
+    flexProps.marginLeft = parseInt(marginLeft, 10) || DEFAULT_MARGIN;
     
 
     // Set minHeight, maxHeight, minWidth, maxWidth only if they are explicitly set

@@ -58,8 +58,6 @@ const mapDOM = async (root: Element, useAutoLayout = false): Promise<LayerNode> 
                     console.log('elementToFigma', el, 'isAutoLayout', isAutoLayout);
                     setAutoLayoutProps(figmaEl, computedStyle, el as HTMLElement);
                     figmaEl.isAutoLayout = true;
-                
-            //   setAutoLayoutProps(figmaEl, computedStyle);
             }
         }
     } while (n = walk.nextNode());
@@ -121,7 +119,75 @@ const mapDOM = async (root: Element, useAutoLayout = false): Promise<LayerNode> 
         }
     });
 
+    if(useAutoLayout){
+        return patchLayers(layersWithoutMeta);
+    }
+
     return layersWithoutMeta;
+}
+
+const patchLayers = (layer: LayerNode) => {
+    console.log('processMargins', layer);
+    const newRoot = processMargins(layer);
+    traverse(layer, (child, parent) => {
+        processMargins(child, parent);
+    });
+    return newRoot as LayerNode;
+}
+
+const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
+    console.log('processMargins', child, parent);
+        const castedChild = child as any;
+        const castedParent = parent as any;
+        if((castedChild.marginLeft || castedChild.marginRight || castedChild.marginTop || castedChild.marginBottom)){
+            console.log('margin', castedChild.marginLeft, castedChild.marginRight, castedChild.marginTop, castedChild.marginBottom);
+            //wrap with figma frame element with padding set to margins
+            console.log(castedChild.ref);
+            const frame = {
+                type: 'FRAME',
+                x: castedChild.x,
+                y: castedChild.y,
+                width: castedChild.width,
+                height: castedChild.height,
+                paddingLeft: castedChild.marginLeft,
+                paddingRight: castedChild.marginRight,
+                paddingTop: castedChild.marginTop,
+                paddingBottom: castedChild.marginBottom,
+                layoutMode: 'VERTICAL',
+                // itemSpacing: castedChild.itemSpacing,
+                // counterAxisSpacing: castedChild.counterAxisSpacing,
+                // primaryAxisAlignItems: castedChild.primaryAxisAlignItems,
+                // counterAxisAlignItems: castedChild.counterAxisAlignItems,
+                // layoutWrap: castedChild.layoutWrap,
+                layoutSizingVertical: castedChild.layoutSizingVertical,
+                layoutSizingHorizontal: castedChild.layoutSizingHorizontal,
+
+               children: [castedChild],
+            }
+
+            castedChild.layoutSizingVertical= castedChild.layoutSizingVertical==="FIXED" ? "FILL":castedChild.layoutSizingVertical,
+            castedChild.layoutSizingHorizontal= castedChild.layoutSizingHorizontal==="FIXED" ? "FILL":castedChild.layoutSizingHorizontal,
+
+            //delete margins from child
+            delete castedChild.marginLeft;
+            delete castedChild.marginRight;
+            delete castedChild.marginTop;
+            delete castedChild.marginBottom;
+
+            // swap child with frame, update parent
+            if(castedParent){
+                castedParent.children[castedParent.children.indexOf(child)] = frame;
+            }else{
+                //update root
+                castedChild.layoutMode= "VERTICAL";
+                castedChild.layoutSizingVertical= "HUG";
+                castedChild.layoutSizingHorizontal= "FILL";
+                frame.layoutSizingVertical = "HUG"
+                return frame;
+            }
+
+        }
+        return child;
 }
 
 export async function htmlToFigma(

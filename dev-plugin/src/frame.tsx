@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
             padding: 10px;
             border: 1px solid black;
             text-align: center;
+            margin: 2px;
         }
     </style>
 </head>
