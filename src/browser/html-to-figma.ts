@@ -38,7 +38,7 @@ const mapDOM = async (root: Element, useAutoLayout = false): Promise<LayerNode> 
 
     do {
         if (!n.parentElement) continue;
-        const figmaEl = await elementToFigma(n as Element);
+        const figmaEl = await elementToFigma(n as Element, undefined, useAutoLayout);
         console.log('figmaEl', figmaEl)
         const el = n as Element;
     const isAutoLayout =
@@ -120,6 +120,7 @@ const mapDOM = async (root: Element, useAutoLayout = false): Promise<LayerNode> 
     });
 
     if(useAutoLayout){
+        console.log('patchLayers', layersWithoutMeta);
         return patchLayers(layersWithoutMeta);
     }
 
@@ -131,6 +132,7 @@ const patchLayers = (layer: LayerNode) => {
     const newRoot = processMargins(layer);
     traverse(layer, (child, parent) => {
         processMargins(child, parent);
+        processTextLayers(child, parent);
     });
     return newRoot as LayerNode;
 }
@@ -142,7 +144,6 @@ const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
         if((castedChild.marginLeft || castedChild.marginRight || castedChild.marginTop || castedChild.marginBottom)){
             console.log('margin', castedChild.marginLeft, castedChild.marginRight, castedChild.marginTop, castedChild.marginBottom);
             //wrap with figma frame element with padding set to margins
-            console.log(castedChild.ref);
             const frame = {
                 type: 'FRAME',
                 x: castedChild.x,
@@ -153,6 +154,7 @@ const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
                 paddingRight: castedChild.marginRight,
                 paddingTop: castedChild.marginTop,
                 paddingBottom: castedChild.marginBottom,
+                fills: castedChild.fills,
                 layoutMode: 'VERTICAL',
                 // itemSpacing: castedChild.itemSpacing,
                 // counterAxisSpacing: castedChild.counterAxisSpacing,
@@ -188,6 +190,29 @@ const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
 
         }
         return child;
+}
+
+const processTextLayers = (child: LayerNode, parent?: LayerNode | null) => {
+    //todo process text layers and add auto layout props
+    const castedChild = child as any;
+        const castedParent = parent as any;
+    if(castedChild.type === 'TEXT'){
+        console.log('processTextLayers', castedChild);
+        console.log('processTextLayers', castedParent);
+        // const computedStyle = getComputedStyle(castedChild.ref as HTMLElement);
+        // console.log('elementToFigma', castedChild.ref, 'isAutoLayout', true);
+        // setAutoLayoutProps(castedChild, computedStyle, castedChild.ref as HTMLElement);
+        // castedChild.isAutoLayout = true;
+        // castedChild.layoutMode= "VERTICAL";
+        castedChild.layoutSizingHorizontal= "FILL";
+        // castedChild.layoutSizingVertical= "HUG";
+        // castedChild.counterAxisAlignItems = "MAX";
+        // castedChild.primaryAxisAlignItems = "MAX";
+        // castedChild.layoutGrow = 1;
+        castedChild.layoutAlign = "STRETCH";
+        castedChild.layoutPositioning = "AUTO";
+        castedChild.textAutoResize = "WIDTH_AND_HEIGHT";
+    }
 }
 
 export async function htmlToFigma(

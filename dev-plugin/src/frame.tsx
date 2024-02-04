@@ -3,46 +3,8 @@ import { htmlToFigma, setContext } from '../../src/browser';
 import throttle from 'lodash.throttle';
 import { LayerNode } from '../../src/types';
 
-const sendToFigma = (layers: LayerNode) => {
-    window.parent.postMessage(
-        {
-            pluginMessage: {
-                type: 'import',
-                data: {
-                    layers,
-                },
-            },
-        },
-        '*',
-    );
-};
-
-// @ts-ignore
-self.MonacoEnvironment = {
-    // @ts-ignore
-    getWorkerUrl: function (moduleId, label) {
-        if (label === 'json') {
-            return './json.worker.js';
-        }
-        if (label === 'css' || label === 'scss' || label === 'less') {
-            return './css.worker.js';
-        }
-        if (label === 'html' || label === 'handlebars' || label === 'razor') {
-            return './html.worker.js';
-        }
-        if (label === 'typescript' || label === 'javascript') {
-            return './ts.worker.js';
-        }
-        return './editor.worker.js';
-    },
-};
-
-document.addEventListener('DOMContentLoaded', function () {
-    const editor = monaco.editor.create(
-        document.getElementById('editor-container') as HTMLElement,
-        {
-            value: `
-            <!DOCTYPE html>
+const simpleLayou= `
+<!DOCTYPE html>
 <html>
 <head>
     <title>Flexbox Permutations</title>
@@ -190,7 +152,111 @@ document.addEventListener('DOMContentLoaded', function () {
 </body>
 </html>
 
-`.trim(),
+`;
+const complexTextLayout = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved Resource Center Section with Images</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <section class="bg-gray-50 py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Resource Center</h2>
+            <p class="text-center text-gray-600 mb-8">Valuable insights and information to help you navigate employee health benefits</p>   
+        </div>
+    </section>
+</body>
+</html>
+`;
+const complexLayout = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improved Resource Center Section with Images</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <section class="bg-gray-50 py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Resource Center</h2>
+            <p class="text-center text-gray-600 mb-8">Valuable insights and information to help you navigate employee health benefits</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <img src="https://placehold.co/100x100" alt="A collection of guides and e-books related to health benefits" class="rounded-full">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Guides & E-books</h3>
+                    <p class="text-gray-600 mb-4">In-depth resources to deepen your understanding of health benefits.</p>
+                    <a href="#" class="text-blue-500 hover:text-blue-600 font-semibold">Learn More</a>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <img src="https://placehold.co/100x100" alt="Infographics presenting data on health benefits planning" class="rounded-full">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Infographics</h3>
+                    <p class="text-gray-600 mb-4">Visual data to quickly grasp key aspects of benefits planning.</p>
+                    <a href="#" class="text-green-500 hover:text-green-600 font-semibold">Learn More</a>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <img src="https://placehold.co/100x100" alt="Video tutorials on various health benefits topics" class="rounded-full">
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">Video Tutorials</h3>
+                    <p class="text-gray-600 mb-4">Engaging tutorials that walk you through various benefits topics.</p>
+                    <a href="#" class="text-purple-500 hover:text-purple-600 font-semibold">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+`;
+
+const sendToFigma = (layers: LayerNode) => {
+    window.parent.postMessage(
+        {
+            pluginMessage: {
+                type: 'import',
+                data: {
+                    layers,
+                },
+            },
+        },
+        '*',
+    );
+};
+
+// @ts-ignore
+self.MonacoEnvironment = {
+    // @ts-ignore
+    getWorkerUrl: function (moduleId, label) {
+        if (label === 'json') {
+            return './json.worker.js';
+        }
+        if (label === 'css' || label === 'scss' || label === 'less') {
+            return './css.worker.js';
+        }
+        if (label === 'html' || label === 'handlebars' || label === 'razor') {
+            return './html.worker.js';
+        }
+        if (label === 'typescript' || label === 'javascript') {
+            return './ts.worker.js';
+        }
+        return './editor.worker.js';
+    },
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const editor = monaco.editor.create(
+        document.getElementById('editor-container') as HTMLElement,
+        {
+            value: complexLayout.trim(),
             language: 'html',
         },
     );

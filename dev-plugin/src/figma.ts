@@ -37,12 +37,14 @@ figma.ui.onmessage = async (msg) => {
         layers.x = x;
         layers.y = y;
 
+        const useAutoLayout = true;
+
         await addLayersToFrame([layers], baseFrame, ({ node, parent }) => {
             if (!parent) {
                 frameRoot = node;
                 node.name = name;
             }
-        });
+        }, useAutoLayout);
 
         currentNode?.remove();
     }

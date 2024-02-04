@@ -22,9 +22,10 @@ import { setAutoLayoutProps } from './addAutoLayoutProps';
 export const elementToFigma = async (
     el: Element,
     pseudo?: string,
+    useAutoLayout = false,
 ): Promise<MetaLayerNode | undefined> => {
     if (el.nodeType === Node.TEXT_NODE) {
-        return textToFigma(el);
+        return textToFigma(el, {}, useAutoLayout);
     }
     if (el.nodeType !== Node.ELEMENT_NODE) {
         return;

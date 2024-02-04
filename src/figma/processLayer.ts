@@ -58,6 +58,7 @@ export const processLayer = async (
     layer: PlainLayerNode,
     parent: WithRef<LayerNode> | null,
     baseFrame: PageNode | FrameNode,
+    useAutoLayout = false
 ) => {
     const parentFrame = (parent?.ref as FrameNode) || baseFrame;
     console.log('Processing layer', layer.name);
@@ -89,6 +90,9 @@ export const processLayer = async (
     if (layer.type === 'TEXT') {
         const text = node as TextNode;
 
+        //first add to parent to satisfy figma parent safety checks
+        parentFrame.appendChild(node);
+
         if (layer.fontFamily) {
             const fontNumberToNameMap: { [key: number]: string } = {
                 200: 'Thin',
@@ -113,30 +117,30 @@ export const processLayer = async (
         }
 
         assign(text, layer);
-        text.resize(layer.width || 1, layer.height || 1);
+        if(!useAutoLayout){
+            text.resize(layer.width || 1, layer.height || 1);
 
-        text.textAutoResize = 'HEIGHT';
+            text.textAutoResize = 'HEIGHT';
 
-        let adjustments = 0;
-        if (layer.lineHeight) {
-            text.lineHeight = layer.lineHeight;
-        }
-        // Adjust text width
-        while (typeof layer.height === 'number' && text.height > layer.height) {
-            if (adjustments++ > 10) {
-                console.warn('Too many font adjustments', text, layer);
-
-                break;
+            let adjustments = 0;
+            if (layer.lineHeight) {
+                text.lineHeight = layer.lineHeight;
             }
+            // Adjust text width
+            while (typeof layer.height === 'number' && text.height > layer.height) {
+                if (adjustments++ > 10) {
+                    console.warn('Too many font adjustments', text, layer);
 
-            try {
-                text.resize(text.width + 1, text.height);
-            } catch (err) {
-                console.warn('Error on resize text:', layer, text, err);
+                    break;
+                }
+
+                try {
+                    text.resize(text.width + 1, text.height);
+                } catch (err) {
+                    console.warn('Error on resize text:', layer, text, err);
+                }
             }
         }
-
-        parentFrame.appendChild(text);
     }
 
     return node;

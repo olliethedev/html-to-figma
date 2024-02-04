@@ -261,6 +261,18 @@ export function setAutoLayoutProps(
     flexProps.layoutWrap = flexWrap === 'wrap' || flexWrap === 'wrap-reverse'
     ? 'WRAP' : 'NO_WRAP';
 
+    // if has children and child is type text
+    if(layer.children && layer.children.length === 1){
+        const textNode = layer.children[0];
+        if(textNode.type === 'TEXT'){
+            console.log('textNode', textNode);
+            // Set layoutSizingVertical and layoutSizingHorizontal to FILL
+            flexProps.layoutSizingVertical = 'FILL';
+            flexProps.layoutSizingHorizontal = 'FILL';
+        }
+    }
+
+
     // Assign flexProps to the layer
     Object.assign(layer, flexProps);
 }
