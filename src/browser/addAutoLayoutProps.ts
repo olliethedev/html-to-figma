@@ -6,6 +6,7 @@ import {
     WithMeta,
     WRAP_MODE,
 } from '../types';
+import { context } from './utils';
 
 // Named constants
 const DEFAULT_SPACING = 0;
@@ -29,7 +30,7 @@ const alignItemsMapping: Record<string, CounterAxisAlignItems> = {
     stretch: 'CENTER',
 };
 
-type FlexPropsType =  {
+type FlexPropsType = {
     layoutMode: FlexDirection,
     itemSpacing: number,
     counterAxisSpacing: number,
@@ -63,16 +64,33 @@ export function setAutoLayoutProps(
     computedStyles: CSSStyleDeclaration,
     element: HTMLElement
 ): void {
-    // Initialize default FlexProps
-    const flexProps: FlexPropsType = {
-        layoutMode: 'HORIZONTAL' as FlexDirection,
+    const flexProps: FlexPropsType = initializeDefaultFlexProps();
+
+    extractComputedStyles(computedStyles);
+
+    const { display, gap, justifyContent, alignItems, flexDirection, flexWrap, paddingTop, paddingRight, paddingBottom, paddingLeft, marginTop, marginRight, marginBottom, marginLeft, flexGrow, flexShrink, width, height, flexBasis } = computedStyles;
+
+    setLayoutMode(flexProps, display, flexDirection);
+    setSpacing(flexProps, gap);
+    setAlignment(flexProps, justifyContent, alignItems);
+    setSize(flexProps, element, width, height, flexGrow, flexShrink, flexBasis);
+    setPaddingAndMargin(flexProps, paddingTop, paddingRight, paddingBottom, paddingLeft, marginTop, marginRight, marginBottom, marginLeft);
+    setMinMaxDimensions(flexProps, computedStyles);
+    setWrapMode(flexProps, flexWrap);
+
+    Object.assign(layer, flexProps);
+}
+
+function initializeDefaultFlexProps(): FlexPropsType {
+    return {
+        layoutMode: 'HORIZONTAL',
         itemSpacing: DEFAULT_SPACING,
         counterAxisSpacing: DEFAULT_SPACING,
-        primaryAxisAlignItems: 'MIN' as PrimaryAxisAlignItems,
-        counterAxisAlignItems: 'MIN' as CounterAxisAlignItems,
-        layoutWrap: 'NO_WRAP' as WRAP_MODE,
-        layoutSizingVertical: 'HUG' as 'FIXED' | 'HUG' | 'FILL',
-        layoutSizingHorizontal: 'FILL' as 'FIXED' | 'HUG' | 'FILL',
+        primaryAxisAlignItems: 'MIN',
+        counterAxisAlignItems: 'MIN',
+        layoutWrap: 'NO_WRAP',
+        layoutSizingVertical: 'HUG',
+        layoutSizingHorizontal: 'FILL',
         paddingTop: DEFAULT_PADDING,
         paddingRight: DEFAULT_PADDING,
         paddingBottom: DEFAULT_PADDING,
@@ -81,201 +99,180 @@ export function setAutoLayoutProps(
         marginRight: DEFAULT_MARGIN,
         marginBottom: DEFAULT_MARGIN,
         marginLeft: DEFAULT_MARGIN,
-        minHeight: undefined as number | undefined,
-        maxHeight: undefined as number | undefined,
-        minWidth: undefined as number | undefined,
-        maxWidth: undefined as number | undefined,
+        minHeight: undefined,
+        maxHeight: undefined,
+        minWidth: undefined,
+        maxWidth: undefined,
     };
+}
 
-    const {
-        display,
-        gap,
-        justifyContent,
-        alignItems,
-        flexDirection,
-        flexWrap,
-        paddingTop,
-        paddingRight,
-        paddingBottom,
-        paddingLeft,
-        marginTop,
-        marginRight,
-        marginBottom,
-        marginLeft,
-        flexGrow,
-        flexShrink,
-        flexBasis,
-        width,
-        height,
-    } = computedStyles;
+function extractComputedStyles(computedStyles: CSSStyleDeclaration): void {
+    const stylesToLog = ['display', 'gap', 'justifyContent', 'alignItems', 'flexDirection', 'flexWrap', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'flexGrow', 'width', 'height'];
+    const loggedStyles = stylesToLog.reduce((acc, style) => ({ ...acc, [style]: computedStyles[style as keyof CSSStyleDeclaration] }), {});
+    console.log('computedStyles', loggedStyles);
+}
 
-    console.log('computedStyles', {
-        display,
-        gap,
-        justifyContent,
-        alignItems,
-        flexDirection,
-        flexWrap,
-        paddingTop,
-        paddingRight,
-        paddingBottom,
-        paddingLeft,
-        marginTop,
-        marginRight,
-        marginBottom,
-        marginLeft,
-        flexGrow,
-        width,
-        height,
-    });
-
-    const parent = element.parentElement;
-
-    
-
-    // Set layoutMode based on display and flexDirection
+function setLayoutMode(flexProps: FlexPropsType, display: string, flexDirection: string): void {
     if (display === 'flex') {
-        flexProps.layoutMode =
-            flexDirection === 'row' || flexDirection === 'row-reverse' ? 'HORIZONTAL' : 'VERTICAL';
-    }else{
+        flexProps.layoutMode = flexDirection.startsWith('row') ? 'HORIZONTAL' : 'VERTICAL';
+    } else {
         flexProps.layoutMode = 'VERTICAL';
     }
+}
 
-    // Set itemSpacing and counterAxisSpacing based on gap
+function setSpacing(flexProps: FlexPropsType, gap: string): void {
     if (gap && gap !== 'normal') {
-        const gapValues = gap
-            .trim()
-            .split(' ')
-            .map((value) => parseInt(value, 10));
-        flexProps.itemSpacing = gapValues[0] || 0;
-        flexProps.counterAxisSpacing = gapValues[1] || gapValues[0] || 0;
+        const spacingValues = gap.trim().split(' ').map(value => parseInt(value, 10));
+        const itemSpacing: number = spacingValues[0];
+        const counterAxisSpacing: number = spacingValues[1] || itemSpacing;
+        Object.assign(flexProps, { itemSpacing, counterAxisSpacing });
     }
+}
 
-    // Set primaryAxisAlignItems based on justifyContent
-
-    flexProps.primaryAxisAlignItems =
-        justifyContentMapping[justifyContent] || 'MIN';
-
-    // Set counterAxisAlignItems based on alignItems
+function setAlignment(flexProps: FlexPropsType, justifyContent: string, alignItems: string): void {
+    flexProps.primaryAxisAlignItems = justifyContentMapping[justifyContent] || 'MIN';
     flexProps.counterAxisAlignItems = alignItemsMapping[alignItems] || 'MIN';
+}
 
-    
+function setSize(flexProps: FlexPropsType, element: HTMLElement, width: string, height: string, flexGrow: string, flexShrink: string, flexBasis: string): void {
+    if (isInsideFlexContainer(element)) {
+        const parent = element.parentElement;
+        if (!parent) return;
+        const parentStyles = context.window.getComputedStyle(parent);
+        const parentFlexDirection = parentStyles.flexDirection;
+        const parentWraps = parentStyles.flexWrap;
+        const isRowDirection = parentFlexDirection.startsWith('row');
+        // const parentWidth = parseSizeValue(parentStyles.width);
+        // const parentHeight = parseSizeValue(parentStyles.height);
+        const elementWidth = parseSizeValue(width);
+        const elementHeight = parseSizeValue(height);
+        const elementFlexBasis = parseSizeValue(flexBasis);
+        const elementFlexGrow = parseFloat(flexGrow) || 0;
+        const elementFlexShrink = parseFloat(flexShrink) || 0;
+        console.log(
+            {
+                elementWidth,
+                elementHeight,
+                elementFlexBasis,
+                elementFlexGrow,
+                elementFlexShrink,
+                isRowDirection,
+            }
+        )
 
+        // Set sizing based on flex-basis if available
+        if (elementFlexBasis > 0) {
+            if (isRowDirection) {
+                flexProps.layoutSizingHorizontal = 'FIXED';
+                flexProps.minWidth = elementFlexBasis;
+                flexProps.maxWidth = elementFlexBasis;
+            } else {
+                flexProps.layoutSizingVertical = 'FIXED';
+                flexProps.minHeight = elementFlexBasis;
+                flexProps.maxHeight = elementFlexBasis;
+            }
+        } else {
+            // Set sizing based on flex-grow if available
+            if (elementFlexGrow > 0) {
+                console.log('flex-grow');
+                if (isRowDirection) {
+                    flexProps.layoutSizingHorizontal = 'FILL';
+                } else {
+                    flexProps.layoutSizingVertical = 'FILL';
+                }
+            } else if(elementFlexShrink > 0){
+                console.log('flex-shrink');
+                if (isRowDirection) {
+                    if(parentWraps){
+                        flexProps.layoutSizingHorizontal = 'FIXED';
+                    }else{
+                        flexProps.layoutSizingHorizontal = 'HUG';
+                    }
+                } else {
+                    if(parentWraps){
+                        flexProps.layoutSizingVertical = 'FIXED';
+                    }else{
+                        flexProps.layoutSizingVertical = 'HUG';
+                    }
+                }
+            } else {
+                // Set sizing based on explicit width/height if available
+                console.log('explicit width/height');
+                if (elementWidth > 0 && isRowDirection) {
+                    flexProps.layoutSizingHorizontal = 'FIXED';
+                    flexProps.minWidth = elementWidth;
+                    flexProps.maxWidth = elementWidth;
+                } else if (elementHeight > 0 && !isRowDirection) {
+                    flexProps.layoutSizingVertical = 'FIXED';
+                    flexProps.minHeight = elementHeight;
+                    flexProps.maxHeight = elementHeight;
+                } else {
+                    if (isRowDirection) {
+                        flexProps.layoutSizingHorizontal = 'HUG';
+                    } else {
+                        flexProps.layoutSizingVertical = 'HUG';
+                    }
+                }
+            }
+        }
 
-    // Set layoutSizingVertical and layoutSizingHorizontal based on width and height
-    // set to FILL if width or height is set to 100% or if parent is a flex container
-    const{ width: styleWidth, height: styleHeight, flexGrow: styleFlexGrow } = element.style;
-    console.log({
-        width,
-        styleWidth,
-        height,
-        styleHeight,
-    });
-    if(isBodyElement(element)){
-        console.log('isBodyElement');
-        flexProps.layoutSizingHorizontal = 'FIXED';
-        flexProps.layoutSizingVertical = 'FIXED';
-    }else if (!isInsideFlexContainer(element)) {
-        console.log('!isInsideFlexContainer');
+        // If the element is a direct child of the body, fill the available space
+        if (isBodyElement(parent)) {
+            flexProps.layoutSizingHorizontal = 'FILL';
+            flexProps.layoutSizingVertical = 'FILL';
+        }
+    }else{
+        // handle non-flex container
+        console.log('non-flex container');
+        const{ width: styleWidth, height: styleHeight, flexGrow: styleFlexGrow } = element.style;
         flexProps.layoutSizingHorizontal = !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'HUG';
         flexProps.layoutSizingVertical = parsePixelValue(styleHeight) > 0 ? 'FIXED' : 'HUG';
-    }else if (width === '100%' || height === '100%') {
-        console.log('width === 100% || height === 100%');
-        flexProps.layoutSizingHorizontal = 'FILL';
-        flexProps.layoutSizingVertical = 'FILL';
-    } else {
-        console.log('else');
-        
-        
-        const parentFlexDirectionRaw = parent && getComputedStyle(parent).flexDirection;
-        const parentFlexDirection= parentFlexDirectionRaw === 'row' || flexDirection === 'row-reverse' ? 'HORIZONTAL' : 'VERTICAL';
-        if(parentFlexDirection=== 'HORIZONTAL'){
-            if(width === '100%'){
-                flexProps.layoutSizingHorizontal = 'FILL';
-            } else if(height === '100%'){
-                flexProps.layoutSizingVertical = 'FILL';
-            }else if (flexBasis !== 'auto' && flexBasis !== '0%') {
-                const basisValue = parseSizeValue(flexBasis);
-                console.log('basisValue', basisValue);
-                flexProps.layoutSizingHorizontal = basisValue > 0 ? 'FIXED' : 'HUG';
-            }else if(styleFlexGrow){
-                // Set layoutGrow
-                console.log('flexBasis', flexBasis);
-                const flexGrowValue = parseInt(flexGrow, 10);
-                flexProps.layoutSizingHorizontal = 'FILL';
-            } else{
-                flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
-                flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
-            }
-        }else if(parentFlexDirection === 'VERTICAL'){
-            if(height === '100%'){
-                flexProps.layoutSizingVertical = 'FILL';
-            } else if(width === '100%'){
-                flexProps.layoutSizingHorizontal = 'FILL';
-            }else if (flexBasis !== 'auto' && flexBasis !== '0%') {
-                const basisValue = parseSizeValue(flexBasis);
-                console.log('basisValue', basisValue);
-                flexProps.layoutSizingVertical = basisValue > 0 ? 'FIXED' : 'HUG';
-            }else if(styleFlexGrow){
-                // Set layoutGrow
-                console.log('flexBasis', flexBasis);
-                const flexGrowValue = parseInt(flexGrow, 10);
-                flexProps.layoutSizingVertical = 'FILL';
-            } else{
-                flexProps.layoutSizingHorizontal= width.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'FIXED';
-                flexProps.layoutSizingVertical = height.endsWith('%') ? 'FILL' : !styleWidth || isEmptyString(styleWidth) ? 'HUG' : 'FIXED';
-            }
-            
-        }
     }
-
-    // Set padding values
-    flexProps.paddingTop = parseInt(paddingTop, 10) || DEFAULT_PADDING;
-    flexProps.paddingRight = parseInt(paddingRight, 10) || DEFAULT_PADDING;
-    flexProps.paddingBottom = parseInt(paddingBottom, 10) || DEFAULT_PADDING;
-    flexProps.paddingLeft = parseInt(paddingLeft, 10) || DEFAULT_PADDING;
-
-    // Set margin values
-
-    flexProps.marginTop = parseInt(marginTop, 10) || DEFAULT_MARGIN;
-    flexProps.marginRight = parseInt(marginRight, 10) || DEFAULT_MARGIN;
-    flexProps.marginBottom = parseInt(marginBottom, 10) || DEFAULT_MARGIN;
-    flexProps.marginLeft = parseInt(marginLeft, 10) || DEFAULT_MARGIN;
-    
-
-    // Set minHeight, maxHeight, minWidth, maxWidth only if they are explicitly set
-    flexProps.minHeight =
-        parseFloat(computedStyles.getPropertyValue('min-height')) || undefined;
-    flexProps.maxHeight =
-        parseFloat(computedStyles.getPropertyValue('max-height')) || undefined;
-    flexProps.minWidth =
-        parseFloat(computedStyles.getPropertyValue('min-width')) || undefined;
-    flexProps.maxWidth =
-        parseFloat(computedStyles.getPropertyValue('max-width')) || undefined;
-
-        const flexBasisValue = parseSizeValue(flexBasis);
-        console.log('flexBasisValue', flexBasisValue);
-    
-
-    // Set layoutWrap based on flexWrap when layoutMode is HORIZONTAL
-    flexProps.layoutWrap = flexWrap === 'wrap' || flexWrap === 'wrap-reverse'
-    ? 'WRAP' : 'NO_WRAP';
-
-    // if has children and child is type text
-    if(layer.children && layer.children.length === 1){
-        const textNode = layer.children[0];
-        if(textNode.type === 'TEXT'){
-            console.log('textNode', textNode);
-            // Set layoutSizingVertical and layoutSizingHorizontal to FILL
-            flexProps.layoutSizingVertical = 'FILL';
-            flexProps.layoutSizingHorizontal = 'FILL';
-        }
-    }
-
-
-    // Assign flexProps to the layer
-    Object.assign(layer, flexProps);
 }
+
+function setPaddingAndMargin(flexProps: FlexPropsType, paddingTop: string, paddingRight: string, paddingBottom: string, paddingLeft: string, marginTop: string, marginRight: string, marginBottom: string, marginLeft: string): void {
+    const paddingValues = { paddingTop, paddingRight, paddingBottom, paddingLeft };
+    const marginValues = { marginTop, marginRight, marginBottom, marginLeft };
+
+    type PaddingKeys = 'paddingTop' | 'paddingRight' | 'paddingBottom' | 'paddingLeft';
+    type MarginKeys = 'marginTop' | 'marginRight' | 'marginBottom' | 'marginLeft';
+
+    Object.keys(paddingValues).forEach(key => {
+        const paddingKey = key as PaddingKeys;
+        flexProps[paddingKey] = parseInt(paddingValues[paddingKey], 10) || DEFAULT_PADDING;
+    });
+
+    Object.keys(marginValues).forEach(key => {
+        const marginKey = key as MarginKeys;
+        flexProps[marginKey] = parseInt(marginValues[marginKey], 10) || DEFAULT_MARGIN;
+    });
+}
+
+function setMinMaxDimensions(flexProps: FlexPropsType, computedStyles: CSSStyleDeclaration): void {
+    const dimensions = {
+        minHeight: 'minHeight',
+        maxHeight: 'maxHeight',
+        minWidth: 'minWidth',
+        maxWidth: 'maxWidth',
+    };
+
+    type DimensionKeys = 'minHeight' | 'maxHeight' | 'minWidth' | 'maxWidth';
+
+    Object.entries(dimensions).forEach(([key, cssProperty]) => {
+        const value = parseFloat(computedStyles.getPropertyValue(cssProperty));
+        const flexPropKey = key as DimensionKeys; // Explicitly narrowing down the type
+        if (!isNaN(value)) {
+            flexProps[flexPropKey] = value;
+        } else {
+            flexProps[flexPropKey] = undefined;
+        }
+    });
+}
+
+function setWrapMode(flexProps: FlexPropsType, flexWrap: string): void {
+    flexProps.layoutWrap = flexWrap.startsWith('wrap') ? 'WRAP' : 'NO_WRAP';
+}
+
 
 function parsePixelValue(value: string): number {
     return parseInt(value.replace('px', ''), 10) || 0;
@@ -292,6 +289,7 @@ function parseSizeValue(value: string): number {
 
 function isInsideFlexContainer(element: HTMLElement) {
     const parent = element.parentElement;
+    const { getComputedStyle } = context.window;
     return parent && getComputedStyle(parent).display === 'flex';
 }
 

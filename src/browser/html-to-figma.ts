@@ -141,7 +141,11 @@ const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
     console.log('processMargins', child, parent);
         const castedChild = child as any;
         const castedParent = parent as any;
-        if((castedChild.marginLeft || castedChild.marginRight || castedChild.marginTop || castedChild.marginBottom)){
+        if((castedChild.marginLeft && castedChild.marginLeft>0 
+            || castedChild.marginRight && castedChild.marginRight>0
+            || castedChild.marginTop && castedChild.marginTop>0
+            || castedChild.marginBottom && castedChild.marginBottom>0
+            )){
             console.log('margin', castedChild.marginLeft, castedChild.marginRight, castedChild.marginTop, castedChild.marginBottom);
             //wrap with figma frame element with padding set to margins
             const frame = {
@@ -204,7 +208,7 @@ const processTextLayers = (child: LayerNode, parent?: LayerNode | null) => {
         // setAutoLayoutProps(castedChild, computedStyle, castedChild.ref as HTMLElement);
         // castedChild.isAutoLayout = true;
         // castedChild.layoutMode= "VERTICAL";
-        castedChild.layoutSizingHorizontal= "FILL";
+        castedChild.layoutSizingHorizontal= castedChild.layoutSizingHorizontal==="FIXED" ? "FILL":castedChild.layoutSizingHorizontal;
         // castedChild.layoutSizingVertical= "HUG";
         // castedChild.counterAxisAlignItems = "MAX";
         // castedChild.primaryAxisAlignItems = "MAX";

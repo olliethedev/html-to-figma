@@ -3,7 +3,7 @@ import { htmlToFigma, setContext } from '../../src/browser';
 import throttle from 'lodash.throttle';
 import { LayerNode } from '../../src/types';
 
-const simpleLayou= `
+const simpleLayout= `
 <!DOCTYPE html>
 <html>
 <head>
@@ -210,6 +210,28 @@ const complexLayout = `
                     <h3 class="text-lg font-semibold text-gray-800 mb-3">Video Tutorials</h3>
                     <p class="text-gray-600 mb-4">Engaging tutorials that walk you through various benefits topics.</p>
                     <a href="#" class="text-purple-500 hover:text-purple-600 font-semibold">Learn More</a>
+                </div>
+            </div>
+            <div class="mt-2 flex gap-4 text-white text-sm font-bold font-mono leading-6 bg-stripes-pink rounded-lg">
+                <div class="p-4 flex-none w-14 h-14 rounded-lg flex items-center justify-center bg-pink-300 dark:bg-pink-800 dark:text-pink-400">01</div>
+                <div class="p-4 flex-1 w-64 rounded-lg flex items-center justify-center bg-pink-500 shadow-lg">02</div>
+                <div class="p-4 flex-1 w-32 rounded-lg flex items-center justify-center bg-pink-500 shadow-lg">03</div>
+            </div>
+            <div class="flex gap-4 text-white text-sm font-bold font-mono leading-6 bg-stripes-indigo rounded-lg">
+                <div class="flex-none last:pr-8 sm:last:pr-0">
+                    <div class="p-4 w-14 h-14 rounded-lg flex items-center justify-center bg-indigo-300 dark:bg-indigo-800 dark:text-indigo-400">
+                    01
+                    </div>
+                </div>
+                <div class="flex-none last:pr-8 sm:last:pr-0">
+                    <div class="p-4 w-72 rounded-lg flex items-center justify-center bg-indigo-500 shadow-lg">
+                    02
+                    </div>
+                </div>
+                <div class="flex-1 last:pr-8 sm:last:pr-0">
+                    <div class="p-4 rounded-lg flex items-center justify-center bg-indigo-300 dark:bg-indigo-800 dark:text-indigo-400">
+                    03
+                    </div>
                 </div>
             </div>
         </div>
