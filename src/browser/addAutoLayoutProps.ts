@@ -68,12 +68,12 @@ export function setAutoLayoutProps(
 
     extractComputedStyles(computedStyles);
 
-    const { display, gap, justifyContent, alignItems, flexDirection, flexWrap, paddingTop, paddingRight, paddingBottom, paddingLeft, marginTop, marginRight, marginBottom, marginLeft, flexGrow, flexShrink, width, height, flexBasis } = computedStyles;
+    const { display, gap, justifyContent, alignItems, flexDirection, flexWrap, paddingTop, paddingRight, paddingBottom, paddingLeft, marginTop, marginRight, marginBottom, marginLeft, flexGrow, flexShrink, width, height, flexBasis, textAlign } = computedStyles;
 
     setLayoutMode(flexProps, display, flexDirection);
     setSpacing(flexProps, gap);
     setAlignment(flexProps, justifyContent, alignItems);
-    setSize(flexProps, element, width, height, flexGrow, flexShrink, flexBasis);
+    setSize(flexProps, element, width, height, flexGrow, flexShrink, flexBasis, textAlign, display);
     setPaddingAndMargin(flexProps, paddingTop, paddingRight, paddingBottom, paddingLeft, marginTop, marginRight, marginBottom, marginLeft);
     setMinMaxDimensions(flexProps, computedStyles);
     setWrapMode(flexProps, flexWrap);
@@ -134,7 +134,7 @@ function setAlignment(flexProps: FlexPropsType, justifyContent: string, alignIte
     flexProps.counterAxisAlignItems = alignItemsMapping[alignItems] || 'MIN';
 }
 
-function setSize(flexProps: FlexPropsType, element: HTMLElement, width: string, height: string, flexGrow: string, flexShrink: string, flexBasis: string): void {
+function setSize(flexProps: FlexPropsType, element: HTMLElement, width: string, height: string, flexGrow: string, flexShrink: string, flexBasis: string, textAlign: string, display: string): void {
     if (isInsideFlexContainer(element)) {
         const parent = element.parentElement;
         if (!parent) return;
@@ -227,6 +227,21 @@ function setSize(flexProps: FlexPropsType, element: HTMLElement, width: string, 
         const{ width: styleWidth, height: styleHeight, flexGrow: styleFlexGrow } = element.style;
         flexProps.layoutSizingHorizontal = !styleWidth || isEmptyString(styleWidth) ? 'FILL' : 'HUG';
         flexProps.layoutSizingVertical = parsePixelValue(styleHeight) > 0 ? 'FIXED' : 'HUG';
+        if (display === 'inline-block') {
+            console.log('inline-block');
+            (flexProps as any).layoutAlign = 'INHERIT';
+            flexProps.layoutSizingHorizontal = 'HUG';
+        }
+        if (textAlign === 'center') {
+            flexProps.counterAxisAlignItems = 'CENTER';
+            flexProps.layoutSizingHorizontal = 'FILL';
+        } else if (textAlign === 'right') {
+            flexProps.primaryAxisAlignItems = 'MAX';
+            flexProps.layoutSizingHorizontal = 'FILL';
+        } else if (textAlign === 'left') {
+            flexProps.primaryAxisAlignItems = 'MIN';
+            flexProps.layoutSizingHorizontal = 'FILL';
+        }
     }
 }
 

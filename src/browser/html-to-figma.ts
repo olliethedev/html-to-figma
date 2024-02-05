@@ -158,15 +158,19 @@ const processMargins = (child: LayerNode, parent?: LayerNode | null) => {
                 paddingRight: castedChild.marginRight,
                 paddingTop: castedChild.marginTop,
                 paddingBottom: castedChild.marginBottom,
-                fills: castedChild.fills,
-                layoutMode: 'VERTICAL',
+                // fills: castedChild.fills,
+                layoutMode: 'VERTICAL', // todo: check if it needs to be dynamic
                 // itemSpacing: castedChild.itemSpacing,
                 // counterAxisSpacing: castedChild.counterAxisSpacing,
-                // primaryAxisAlignItems: castedChild.primaryAxisAlignItems,
-                // counterAxisAlignItems: castedChild.counterAxisAlignItems,
+                primaryAxisAlignItems: castedChild.primaryAxisAlignItems,
+                counterAxisAlignItems: castedChild.counterAxisAlignItems,
                 // layoutWrap: castedChild.layoutWrap,
                 layoutSizingVertical: castedChild.layoutSizingVertical,
                 layoutSizingHorizontal: castedChild.layoutSizingHorizontal,
+                // bottomLeftRadius: castedChild.bottomLeftRadius,
+                // bottomRightRadius: castedChild.bottomRightRadius,
+                // topLeftRadius: castedChild.topLeftRadius,
+                // topRightRadius: castedChild.topRightRadius,
 
                children: [castedChild],
             }
