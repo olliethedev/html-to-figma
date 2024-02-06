@@ -1,6 +1,6 @@
 {
     "name": "html-to-figma",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Convert DOM node to Figma Node",
     "author": "OllieTheDev",
     "license": "MIT",
