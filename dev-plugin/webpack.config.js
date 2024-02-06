@@ -5,11 +5,11 @@ const path = require('path');
 module.exports = (env, argv) => {
     const outputDir = path.join(
         __dirname,
-        argv.mode === 'production' ? '../dev-plugin-static' : 'dist'
+        argv.mode === 'production' ? '../dev-plugin-static' : 'dist',
     );
     const publicPath =
         argv.mode === 'production'
-            ? 'https://sergcen.github.io/html-to-figma/dev-plugin-static/'
+            ? 'https://theanuragshukla.github.io/html-to-figma/dev-plugin-static/'
             : '/';
     const frameUrl =
         argv.mode === 'production'

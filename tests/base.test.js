@@ -1,4 +1,3 @@
-
 describe('Convert to figma', () => {
     let htmlToFigma;
     beforeAll(async () => {
@@ -7,7 +6,7 @@ describe('Convert to figma', () => {
             await page.addScriptTag({ url: '../index.js' });
 
             return page.$eval(`#container`, (el) => window.__htmlToFigma(el));
-        }
+        };
     });
 
     it('button with padding', async () => {

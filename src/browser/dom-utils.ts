@@ -9,16 +9,16 @@ export function getAggregateRectOfElements(elements: Element[]) {
     }
 
     const top = getBoundingClientRect(
-        getDirectionMostOfElements('top', elements)!
+        getDirectionMostOfElements('top', elements)!,
     ).top;
     const left = getBoundingClientRect(
-        getDirectionMostOfElements('left', elements)!
+        getDirectionMostOfElements('left', elements)!,
     ).left;
     const bottom = getBoundingClientRect(
-        getDirectionMostOfElements('bottom', elements)!
+        getDirectionMostOfElements('bottom', elements)!,
     ).bottom;
     const right = getBoundingClientRect(
-        getDirectionMostOfElements('right', elements)!
+        getDirectionMostOfElements('right', elements)!,
     ).right;
     const width = right - left;
     const height = bottom - top;
@@ -33,7 +33,7 @@ export function getAggregateRectOfElements(elements: Element[]) {
 }
 export function getBoundingClientRect(
     el: Element,
-    pseudo?: string
+    pseudo?: string,
 ): ClientRect {
     const { getComputedStyle } = context.window;
 
@@ -65,7 +65,7 @@ export function getBoundingClientRect(
 export function getBoundingClientRectPseudo(
     el: Element,
     pseudo: string,
-    style: CSSStyleDeclaration
+    style: CSSStyleDeclaration,
 ): ClientRect {
     const dest: Record<string, string> = {};
     const copy = document.createElement('span');
@@ -87,38 +87,41 @@ export function getBoundingClientRectPseudo(
 
 export function getDirectionMostOfElements(
     direction: 'left' | 'right' | 'top' | 'bottom',
-    elements: Element[]
+    elements: Element[],
 ) {
     if (elements.length === 1) {
         return elements[0];
     }
-    return elements.reduce((memo, value: Element) => {
-        if (!memo) {
-            return value;
-        }
+    return elements.reduce(
+        (memo, value: Element) => {
+            if (!memo) {
+                return value;
+            }
 
-        if (direction === 'left' || direction === 'top') {
-            if (
-                getBoundingClientRect(value)[direction] <
-                getBoundingClientRect(memo)[direction]
-            ) {
-                return value;
+            if (direction === 'left' || direction === 'top') {
+                if (
+                    getBoundingClientRect(value)[direction] <
+                    getBoundingClientRect(memo)[direction]
+                ) {
+                    return value;
+                }
+            } else {
+                if (
+                    getBoundingClientRect(value)[direction] >
+                    getBoundingClientRect(memo)[direction]
+                ) {
+                    return value;
+                }
             }
-        } else {
-            if (
-                getBoundingClientRect(value)[direction] >
-                getBoundingClientRect(memo)[direction]
-            ) {
-                return value;
-            }
-        }
-        return memo;
-    }, null as Element | null);
+            return memo;
+        },
+        null as Element | null,
+    );
 }
 
 export function getAppliedComputedStyles(
     element: Element,
-    pseudo?: string
+    pseudo?: string,
 ): { [key: string]: string } {
     // @ts-ignore
     const { getComputedStyle, HTMLElement, SVGElement } = context.window;
@@ -178,7 +181,7 @@ export function getAppliedComputedStyles(
 
     function pick<T extends { [key: string]: V }, V = any>(
         object: T,
-        paths: (keyof T)[]
+        paths: (keyof T)[],
     ) {
         const newObject: Partial<T> = {};
         paths.forEach((path) => {
@@ -201,7 +204,7 @@ export function textNodesUnder(el: Element) {
         el,
         NodeFilter.SHOW_TEXT,
         null,
-        false
+        false,
     );
 
     while ((n = walk.nextNode())) {
@@ -280,7 +283,7 @@ const convertToSvg = (value: string, layer: LayerNode) => {
 
     if (typeof layerSvg.fills !== 'symbol') {
         layerSvg.fills = layerSvg?.fills?.filter(
-            (item) => item.type !== 'IMAGE'
+            (item) => item.type !== 'IMAGE',
         );
     }
 };
@@ -300,7 +303,7 @@ export async function processImages(layer: LayerNode) {
                               const type = url.split(/[:,;]/)[1];
                               if (type.includes('svg')) {
                                   const svgValue = decodeURIComponent(
-                                      url.split(',')[1]
+                                      url.split(',')[1],
                                   );
                                   convertToSvg(svgValue, layer);
                                   return Promise.resolve();
@@ -312,7 +315,7 @@ export async function processImages(layer: LayerNode) {
                                   } else {
                                       console.info(
                                           'Found data url that could not be converted',
-                                          url
+                                          url,
                                       );
                                   }
                                   return;
@@ -324,7 +327,11 @@ export async function processImages(layer: LayerNode) {
                           // Proxy returned content through Builder so we can access cross origin for
                           // pulling in photos, etc
                           //corsproxy will only work with images not svgs
-                          const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+                          const res = await fetch(
+                              `https://corsproxy.io/?${encodeURIComponent(
+                                  url,
+                              )}`,
+                          );
 
                           const contentType = res.headers.get('content-type');
                           if (
@@ -353,15 +360,14 @@ export async function processImages(layer: LayerNode) {
                   } catch (err) {
                       console.warn('Could not fetch image', layer, err);
                   }
-              })
+              }),
           )
         : Promise.resolve([]);
 }
 
-
 export const getShadowEls = (el: Element): Element[] =>
     Array.from(
-        el.shadowRoot?.querySelectorAll('*') || ([] as Element[])
+        el.shadowRoot?.querySelectorAll('*') || ([] as Element[]),
     ).reduce((memo, el) => {
         memo.push(el);
         memo.push(...getShadowEls(el));
@@ -376,7 +382,7 @@ export enum ElemTypes {
     Video,
     SVG,
     SubSVG,
-    Element
+    Element,
 }
 
 export const getElemType = (el: Element): ElemTypes | undefined => {
@@ -417,9 +423,12 @@ export const getElemType = (el: Element): ElemTypes | undefined => {
 
 export const isElemType = (el: Element, type: ElemTypes): boolean => {
     return getElemType(el) === type;
-}
+};
 
-export const getLineHeight = (el: HTMLElement, computedStyles: CSSStyleDeclaration): Unit | null => {
+export const getLineHeight = (
+    el: HTMLElement,
+    computedStyles: CSSStyleDeclaration,
+): Unit | null => {
     const computedLineHeight = parseUnits(computedStyles.lineHeight);
 
     if (computedLineHeight) {
@@ -433,5 +442,5 @@ export const getLineHeight = (el: HTMLElement, computedStyles: CSSStyleDeclarati
     const fontSize = parseUnits(computedStyles.fontSize)?.value;
     if (!fontSize) return null;
 
-    return { value: Math.floor(fontSize * 1.2), unit: 'PIXELS' }
-}
+    return { value: Math.floor(fontSize * 1.2), unit: 'PIXELS' };
+};

@@ -124,12 +124,12 @@ export function assign(a: BaseNode & AnyStringMap, b: AnyStringMap) {
             a.setSharedPluginData(
                 'builder',
                 'data',
-                JSON.stringify(mergedData)
+                JSON.stringify(mergedData),
             );
         } else if (
             typeof value != 'undefined' &&
             ['width', 'height', 'type', 'ref', 'children', 'svg'].indexOf(
-                key
+                key,
             ) === -1
         ) {
             try {

@@ -11,12 +11,14 @@ interface LayerCbArgs {
 export async function addLayersToFrame(
     layers: PlainLayerNode[],
     baseFrame: PageNode | FrameNode,
-    onLayerProcess?: (args: LayerCbArgs) => void
+    onLayerProcess?: (args: LayerCbArgs) => void,
+    useAutoLayout = false,
 ) {
     for (const rootLayer of layers) {
         await traverseAsync(rootLayer, async (layer, parent) => {
             try {
-                const node = await processLayer(layer, parent, baseFrame);
+                console.log('Processing layer:', layer);
+                const node = await processLayer(layer, parent, baseFrame, useAutoLayout);
 
                 onLayerProcess?.({ node, layer, parent });
             } catch (err) {

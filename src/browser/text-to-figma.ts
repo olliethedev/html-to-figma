@@ -8,7 +8,7 @@ import {
 import { getLineHeight, isHidden } from './dom-utils';
 import { context } from './utils';
 
-export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
+export const textToFigma = (node: Element, { fromTextInput = false } = {}, useAutoLayout=false) => {
     const textValue = (
         node.textContent ||
         (node as HTMLInputElement).value ||
@@ -70,10 +70,10 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
         bolder: 900,
         lighter: 100,
     };
-    
-    let fontWeight: string|number = computedStyles.fontWeight;
+
+    let fontWeight: string | number = computedStyles.fontWeight;
     if (isNaN(Number(fontWeight))) {
-        fontWeight = fontWeightMap[fontWeight] || "400"; // Default to 400 if the value is not in the map
+        fontWeight = fontWeightMap[fontWeight] || '400'; // Default to 400 if the value is not in the map
     }
 
     const textNode = {
@@ -157,13 +157,24 @@ export const textToFigma = (node: Element, { fromTextInput = false } = {}) => {
     if (computedStyles.textAlign) {
         if (
             ['left', 'center', 'right', 'justified'].includes(
-                computedStyles.textAlign
+                computedStyles.textAlign,
             )
         ) {
             textNode.textAlignHorizontal =
                 computedStyles.textAlign.toUpperCase() as any;
         }
     }
+
+    // console.log('useAutoLayout', useAutoLayout);
+    // if (useAutoLayout) {
+    //     console.log('useAutoLayout', useAutoLayout);
+    //     textNode.isAutoLayout = true;
+    //     textNode.layoutSizingHorizontal="FILL";
+    //     textNode.layoutSizingVertical="FILL";
+    //     textNode.counterAxisAlignItems="MAX";
+    //     (textNode as any).primaryAxisAlignItems="MAX";
+    //     (textNode as any).layoutMode = "VERTICAL";
+    // }
 
     return textNode;
 };

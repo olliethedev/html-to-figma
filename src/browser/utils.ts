@@ -1,17 +1,17 @@
-import { parseUnits } from "../utils";
+import { parseUnits } from '../utils';
 
 interface ExtendedWindow extends Window {
-    HTMLInputElement: HTMLInputElement
+    HTMLInputElement: HTMLInputElement;
 }
-interface FigmaToHtmlContext { 
+interface FigmaToHtmlContext {
     window: ExtendedWindow;
-    document: Document
+    document: Document;
 }
 
-export const context: FigmaToHtmlContext = { 
+export const context: FigmaToHtmlContext = {
     // @ts-expect-error
     window,
-    document
+    document,
 };
 
 export const setContext = (window: Window) => {
@@ -24,12 +24,13 @@ export const replaceSvgFill = (svg: string, fillColor: string) => {
     const endTagIndex = svg.indexOf('>');
     const mainTag = svg.slice(1, endTagIndex);
     const fillAttr = `fill="${fillColor}"`;
-    const mainTagWithFill = mainTag.includes('fill=') ? mainTag.replace(/fill\=(.*?)\s/, `fill="${fillColor}" `) : mainTag + fillAttr;
+    const mainTagWithFill = mainTag.includes('fill=')
+        ? mainTag.replace(/fill\=(.*?)\s/, `fill="${fillColor}" `)
+        : mainTag + fillAttr;
 
     return `<${mainTagWithFill}>${svg.slice(endTagIndex)}`;
-}
+};
 // src/utils/index.ts
-
 
 export function parseGradient(cssGradient: string) {
     const linearMatch = cssGradient.match(/linear-gradient\((.+)\)/);
@@ -41,7 +42,7 @@ export function parseGradient(cssGradient: string) {
 
     const isLinear = Boolean(linearMatch);
     let parts: string[] = [];
-    
+
     if (isLinear && linearMatch) {
         parts = splitGradientParts(linearMatch[1]);
     } else if (!isLinear && radialMatch) {
@@ -55,7 +56,7 @@ export function parseGradient(cssGradient: string) {
         parts.unshift('circle at center');
     }
     let angle = 0;
-    let transform = { x: 0, y: 0 }
+    let transform = { x: 0, y: 0 };
     if (parts.length > 0) {
         const part = parts.shift() as string;
         if (isLinear) {
@@ -63,13 +64,17 @@ export function parseGradient(cssGradient: string) {
             transform = getTransformFromDirection(part.trim());
         } else {
             // Handle radial gradient direction
-            const radialDirectionMatch = part.match(/circle( at (center|top|bottom|right|left)( (top|bottom|right|left))?)?/);
-            console.warn({radialDirectionMatch});
+            const radialDirectionMatch = part.match(
+                /circle( at (center|top|bottom|right|left)( (top|bottom|right|left))?)?/,
+            );
+            console.warn({ radialDirectionMatch });
             if (radialDirectionMatch) {
                 const direction1 = radialDirectionMatch[2] || 'center';
                 const direction2 = radialDirectionMatch[4] || '';
-                const direction = direction2 ? `${direction1} ${direction2}` : direction1;
-                
+                const direction = direction2
+                    ? `${direction1} ${direction2}`
+                    : direction1;
+
                 angle = getRadialAngleFromDirection(direction);
                 transform = getRadialTransformFromDirection(direction);
             }
@@ -77,11 +82,20 @@ export function parseGradient(cssGradient: string) {
     }
 
     const colorStops = parts.map((part, index, array) => {
-        const [color, position] = part.trim().split(/\s+(?![^\(]*\))/).filter(Boolean);
+        const [color, position] = part
+            .trim()
+            .split(/\s+(?![^\(]*\))/)
+            .filter(Boolean);
         const parsedColor = getRgb(color); // Debugging line
         return {
             color: parsedColor,
-            position: getPosition(position, index, array.length, isLinear, color)
+            position: getPosition(
+                position,
+                index,
+                array.length,
+                isLinear,
+                color,
+            ),
         };
     });
 
@@ -89,11 +103,17 @@ export function parseGradient(cssGradient: string) {
         type: isLinear ? 'GRADIENT_LINEAR' : 'GRADIENT_RADIAL',
         angle: (angle * Math.PI) / 180, // Convert to radians
         colorStops,
-        transform
+        transform,
     };
 }
 
-function getPosition(position: string | undefined, index: number, arrayLength: number, isLinear: boolean, direction: string): number {
+function getPosition(
+    position: string | undefined,
+    index: number,
+    arrayLength: number,
+    isLinear: boolean,
+    direction: string,
+): number {
     if (position) {
         return parseFloat(position) / 100;
     }
@@ -112,7 +132,7 @@ function getPosition(position: string | undefined, index: number, arrayLength: n
             default: // 'to bottom'
                 return calculatedPosition;
         }
-    } else{
+    } else {
         switch (direction) {
             case 'circle at top':
                 return calculatedPosition;
@@ -178,7 +198,6 @@ function splitGradientParts(gradientPart: string): string[] {
     return parts;
 }
 
-
 export function getRgb(color: string) {
     let match;
 
@@ -194,7 +213,9 @@ export function getRgb(color: string) {
     }
 
     // Check if color is in rgba format
-    match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/i);
+    match = color.match(
+        /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/i,
+    );
     if (match) {
         return {
             r: parseInt(match[1]) / 255,

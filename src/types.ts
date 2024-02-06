@@ -1,21 +1,27 @@
+export type FlexDirection = 'HORIZONTAL' | 'VERTICAL';
+export type PrimaryAxisAlignItems =
+    |'MIN' | 'MAX' | 'CENTER' | 'SPACE_BETWEEN';
+export type CounterAxisAlignItems =
+'MIN' | 'MAX' | 'CENTER' | 'BASELINE';
+export type WRAP_MODE = 'WRAP' | 'NO_WRAP';
+
+
 export interface Unit {
-    unit: "PIXELS";
+    unit: 'PIXELS';
     value: number;
 }
 
 export interface SvgNode extends DefaultShapeMixin, ConstraintMixin {
-    type: "SVG";
+    type: 'SVG';
     svg: string;
 }
 
-
-
 export type WithWriteChildren<T> = Partial<T> & {
-    children: WithWriteChildren<T>[]
-}
+    children: WithWriteChildren<T>[];
+};
 
-export type WithRef<T> = T & { 
-    ref?: SceneNode 
+export type WithRef<T> = T & {
+    ref?: SceneNode;
 };
 
 // export interface Layer {
@@ -24,7 +30,7 @@ export type WithRef<T> = T & {
 //     y: number,
 //     width: number,
 //     height: number,
-//     fills: 
+//     fills:
 //     clipsContent: !!overflowHidden,
 //     fills: fills as any,
 //     children: [],
@@ -32,17 +38,19 @@ export type WithRef<T> = T & {
 //     zIndex: Number(computedStyle.zIndex),
 // }
 
-export type LayerNode = Partial<RectangleNode | TextNode | FrameNode | SvgNode | GroupNode | ComponentNode>;
+export type LayerNode = Partial<
+    RectangleNode | TextNode | FrameNode | SvgNode | GroupNode | ComponentNode
+>;
 
 export type PlainLayerNode = Partial<LayerNode> & {
-    fontFamily?: string
+    fontFamily?: string;
 };
 
 export type MetaLayerNode = WithMeta<LayerNode>;
 export type MetaTextNode = WithMeta<TextNode>;
 
 export type WithMeta<T> = Partial<Omit<T, 'children'>> & {
-    ref?: SceneNode | Element | HTMLElement,
+    ref?: SceneNode | Element | HTMLElement;
     zIndex?: number;
     fontFamily?: string;
     textValue?: WithMeta<TextNode>;
@@ -53,4 +61,5 @@ export type WithMeta<T> = Partial<Omit<T, 'children'>> & {
     constraints?: FrameNode['constraints'];
     clipsContent?: FrameNode['clipsContent'];
     fontWeight?: number;
-}
+    isAutoLayout?: boolean;
+};
