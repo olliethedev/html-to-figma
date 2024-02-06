@@ -1,11 +1,23 @@
 {
-    "name": "html-figma",
+    "name": "html-to-figma",
     "version": "0.3.1",
     "description": "Convert DOM node to Figma Node",
+    "author": "OllieTheDev",
+    "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/sergcen/html-to-figma"
+        "url": "https://github.com/olliethedev/html-to-figma"
     },
+    "bugs": {
+    "url": "https://github.com/olliethedev/html-to-figma/issues"
+    },
+    "homepage": "https://github.com/olliethedev/html-to-figma",
+    "keywords": [
+        "figma",
+        "html",
+        "dom",
+        "node"
+    ],
     "scripts": {
         "start": "parcel tests/page/index.html",
         "publish:package": "npm run build:package && cd build && npm publish",
@@ -14,8 +26,6 @@
         "serve:tests": "serve -s tests/page -p 3000",
         "test": "npm run build:tests && jest tests/*.test.js"
     },
-    "author": "Sergei Savelev",
-    "license": "MIT",
     "devDependencies": {
         "@figma/plugin-typings": "^1.81.0",
         "@types/jest": "^26.0.23",
